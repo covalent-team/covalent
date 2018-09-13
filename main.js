@@ -12,9 +12,6 @@ function createWindow () {
 
   // and load the index.html of the app.
   mainWindow.loadFile('index.html')
-
-  console.log("mainWindow", mainWindow);
-  var table = core.create();
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
 
