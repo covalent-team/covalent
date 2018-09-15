@@ -2,14 +2,23 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Hello World!</title>
+    <title>Covalent</title>
     <link rel="stylesheet" type="text/css" href="css/style.css">
   </head>
   <body>
+    <div id="menubar"></div>
+    <div id="menubar2"></div>
+    <div id="title">
+      <h1>Canvas</h1>
+    </div> 
         
 
+
+    <script>require('electron-connect').client.create()</script> 
     <script>
+      
       // You can also require other files to run in this process
+
       require('./renderer.js')
     </script>
   </body>

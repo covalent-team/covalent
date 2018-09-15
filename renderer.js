@@ -2,17 +2,21 @@
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
 
-// var ipc = require('electron').ipcRenderer;
+//this is where the combination of frontend classes will happen
 
-// ipc.send('renderInit');
+const board = require(__dirname + "/engine/board.js");
+const node = require(__dirname + "/engine/object.js");
 
-// ipc.once('createCanvas', function(event, response){
-//     var canvas = document.createElement('canvas');
-//     var context = canvas.getContext('2d');
-// 	document.body.appendChild(canvas);
 
-// 	canvas.width  = document.body.clientWidth;
-//   	canvas.height = document.documentElement.scrollHeight/1.618;
-//   	ipc.send('canvasCreated', {context: context});
-// })
+const table = board.create();
+var mouse = table.getMouse();
 
+var obj1 = node.create(mouse.x, mouse.y, 40, 40);
+table.addToStack(obj1);
+
+var obj2 = node.create(100, 100, 40, 40);
+table.addToStack(obj2);
+
+// for(var i = 0; i < 1000; i ++){
+// 	table.addToStack(node.create(Math.random()* 500,Math.random()* 500,40,40));
+// }
