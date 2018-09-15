@@ -1,6 +1,11 @@
 // Modules to control application life and create native browser window
+
+'use strict'; 
 const {app, BrowserWindow} = require('electron')
 const core = require( __dirname + '/engine/core.js');
+
+// Add in client for Gulp 
+var client = require('electron-connect').client;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -13,7 +18,11 @@ function createWindow () {
   // and load the index.html of the app.
   mainWindow.loadFile('index.html')
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  //mainWindow.webContents.openDevTools()
+
+  client.create(mainWindow, function () {
+      console.log('client create mainwindow done');
+  });
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
