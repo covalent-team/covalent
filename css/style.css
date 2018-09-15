@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Roboto');
+@import url('https://fonts.googleapis.com/css?family=Roboto:100');
 
 body {
 	margin: 0px;
@@ -16,15 +16,33 @@ textarea {
 }
 
 
+/* ------------------ MENU BARS ------------------- */ 
 #menubar{
 	background-color: black; 
 	position: absolute;
 	height: 100%;
 	width: 70px;
 	box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.50); 
+	padding-top: 50px;
 }
 
+
+.icon{	
+	width: 70px;
+	height: 70px;
+	display:inline-block; 
+}
+
+.icon i{
+	color: rgba(251, 252, 252, 0.7) ; 
+	font-size: 30px;
+	width: 30px;
+	margin-left: 19px;
+}
+
+
 #menubar2{
+	padding-top: 20px;
 	background-color: rgba(123, 36, 28, 1); 
 	position: absolute;
 	height: 100%;
@@ -32,6 +50,8 @@ textarea {
 	margin-left: 70px;
 	box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.50); 
 }
+
+
 
 #title{
 	padding-left: 20px;
@@ -47,14 +67,25 @@ textarea {
 #title h1{
 	font-size: 20px;
 	color: #CD6155;
-	font-family: 'Roboto', sans-serif
+	font-family: 'Roboto', sans-serif; 
+	/* font-weight: 100;  */
 }
 
+
+/* ------------------ CANVAS ------------------- */  
 canvas{
 	margin-top: 50px;
 	margin-left: 270px;
-	background-color: rgba(242, 243, 244,1);
+	background-color: rgba(242, 243, 244,1); 
 	z-index: -2; 
+	padding: 20px;
+	background-image:
+    	linear-gradient(rgba(166, 172, 175,.1) 2px, transparent 2px),
+    	linear-gradient(90deg, rgba(166, 172, 175,.1) 2px, transparent 2px),
+    	linear-gradient(rgba(166, 172, 175,.1) 1px, transparent 1px),
+    	linear-gradient(90deg, rgba(166,172,175,.1) 1px, transparent 1px);
+  	background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+  	background-position: -2px -2px, -2px -2px, -1px -1px, -1px -1px;
 }
 
 
