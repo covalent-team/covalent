@@ -23,13 +23,15 @@ git clone https://github.com/covalent-team/covalent.git
 cd covalent 
 # Install dependencies
 npm install 
+npm install --global gulp-cli 
 # Run the app
 gulp 
 ```
 
+Make sure you have [Gulp](https://github.com/gulpjs/gulp/blob/v3.9.1/docs/getting-started.md) installed both globally and locally. 
 
 ## Resources 
-[Live Reload for Electron](https://github.com/Quramy/electron-connect ) 
+- Live Reload with Electron-Connect: https://github.com/Quramy/electron-connect  
 
 
 ## License
