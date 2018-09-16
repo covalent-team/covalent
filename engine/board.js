@@ -14,8 +14,8 @@ class Board{
 		this.nodeStack = [];
 
 		this.down = {x: 0, y: 0};
-		this.offset = {x: 0, y: 0};
-		this.prevOffset = {x: 0, y: 0};
+		this.offset = {x: 0, y: 0, z: 1};
+		this.prevOffset = {x: 0, y: 0, z: 1};
 		this.clicked = false;
 
 		this.nodeBuilder = nodebuilder.create(this.context);
@@ -48,17 +48,14 @@ class Board{
 	}
 
 	update() {
-		//console.log("update");
+		this.calculateOffset();
 	}
 
 	render() {
+		this.context.setTransform(this.offset.z,0,0,this.offset.z,this.offset.x,this.offset.y);
 		for(var i in this.nodeStack){
 			this.context.beginPath();
-
 			var obj = this.nodeStack[i].getJSON();
-			obj.x += this.offset.x;
-			obj.y += this.offset.y;
-
 			this.nodeBuilder.parseJSON(obj);
 			this.context.stroke();
 		}
@@ -72,13 +69,38 @@ class Board{
 
 	calculateOffset(){
 	if(this.clicked == true){
-			this.offset = {x: this.prevOffset.x + (this.mouseX - this.down.x), y: this.prevOffset.y + (this.mouseY - this.down.y)};
-		}
-		else{
+			this.offset = {
+				x: this.prevOffset.x + (this.mouseX - this.down.x), 
+				y: this.prevOffset.y + (this.mouseY - this.down.y),
+				z: this.offset.z
+			};
+		}else{
 			this.prevOffset = this.offset;
 		}
 	}
 
+	mouseWheelZoom(e){
+		var value;
+		if(e.deltaY > 0){
+			//console.log("zoom out");
+			if(this.offset.z > 0.5){
+				if(this.offset.z >= 0){
+					this.offset.z -= 0.10;
+				}else{
+					this.offset.z -= 0.05;
+				}
+			}
+		}else if(e.deltaY < 0){
+			//console.log("zoom in");
+			if(this.offset.z < 2){
+				if(this.offset.z <= 0){
+					this.offset.z += 0.05;
+				}else{
+					this.offset.z += 0.10;
+				}
+			}
+		}
+	}
 
 	//event listeners
 	initEventListeners() {
@@ -86,9 +108,6 @@ class Board{
 			
 			this.mouseX = e.clientX;
 			this.mouseY = e.clientY;
-
-			
-			this.calculateOffset();
 
 			this.tick();
 		});
@@ -102,6 +121,12 @@ class Board{
 			console.log("mousedown",e);
 			this.down = {x: e.clientX, y: e.clientY};
 			this.clicked = true;
+		});
+
+		document.addEventListener('wheel', e => {
+			//console.log("wheel",e); //foward = -deltaY, backward = +deltaY
+			this.mouseWheelZoom(e);
+			this.tick();
 		});
 
 		document.addEventListener('keyup', e => {
