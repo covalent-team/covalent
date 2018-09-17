@@ -8,40 +8,33 @@
   <body>
 
     <!-- Black menu bar -->
-    <div id="menubar">
-		<div class="icon"> <i class="fas fa-file"></i>
-		</div>
-		<div class="icon"> <i class="fas fa-wrench"></i>
-		</div>
-		<div class="icon"> <i class="fas fa-play"></i>
-		</div>
-		<div class="icon"> <i class="fas fa-bug"></i>
-		</div>
-		<div class="icon"> <i class="fas fa-cogs"></i>
-		</div>
-    </div>
+    <div id="blackmenu"></div>
   
   
 	<!-- Dark red menu bar --> 
-	<div id="menubar2">
-		<!-- <div class="menubar2-title">Explorer</div> -->
+	<div id="redmenu">
+    <h4>Explorer</h4>
 	</div>
-	
 
-	<!-- White title bar--> 
-    <div id="title">
-      <h1>Canvas</h1>
-
-    </div> 
-        
-
-
+    <!-- _____ ADDING IMPORTANT JAVASCRIPT LIBRARIES HERE _____ -->
     <script>require('electron-connect').client.create()</script> 
-    <script>
-      
-      // You can also require other files to run in this process
-
-      require('./renderer.js')
-    </script>
+    <script src="https://fb.me/react-15.0.0.js"></script>
+    <script src="https://fb.me/react-dom-15.0.0.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script> 
+    <script type="text/babel" src="menubar/blackmenu.jsx"></script>
+    <script> require('./renderer.js') </script>
   </body>
 </html>
+
+
+
+
+	<!-- White title bar--> 
+    <!-- <div id="title">
+      <h1>Canvas</h1>
+    </div>  -->
+
+
+  
+        

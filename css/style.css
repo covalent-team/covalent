@@ -1,5 +1,8 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:100');
+@import url('https://fonts.googleapis.com/css?family=Lato:300'); 
 
+
+/* -------------- CUSTOM PRESETS FOR BODY AND NATIVE ELEMENTS------------- */  
 body {
 	margin: 0px;
     -ms-overflow-style: scrollbar;
@@ -15,44 +18,69 @@ textarea {
 	-webkit-app-region: no-drag;
 }
 
+h3{
+	color: white; 
+}
+
+button {
+	outline: none; // this one
+  }
+
+/* -------------- LIST OF VARIABLES ------------- */ 
+:root{
+	--theme-color: rgba(123, 36, 28, 1); 
+	--black-menu-width: 70px; 
+	--red-menu-width: 200px; 
+	--menu-box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.50); 
+}
 
 /* ------------------ MENU BARS ------------------- */ 
-#menubar{
+#blackmenu{
 	background-color: black; 
 	position: absolute;
 	height: 100%;
-	width: 70px;
-	box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.50); 
+	width: var(--black-menu-width);
 	padding-top: 50px;
+	box-shadow: var(--menu-box-shadow);  
+}
+
+#blackmenu button{
+	display: inline-block; 
+	width: var(--black-menu-width);
+	height: var(--black-menu-width);
+	background: none; 
+	border: none;  
 }
 
 
-.icon{	
-	width: 70px;
-	height: 70px;
-	display:inline-block; 
-}
-
-.icon i{
+#blackmenu button i{
 	color: rgba(251, 252, 252, 0.7) ; 
 	font-size: 30px;
-	width: 30px;
-	margin-left: 19px;
 }
 
-
-#menubar2{
+#redmenu{
 	padding-top: 20px;
-	background-color: rgba(123, 36, 28, 1); 
+	background-color: var(--theme-color); 
 	position: absolute;
 	height: 100%;
-	width: 200px;
+	width: var(--red-menu-width);
 	margin-left: 70px;
-	box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.50); 
+	box-shadow: var(--menu-box-shadow); 
+}
+
+
+#redmenu h4{
+	font-family: Lato, sans-serif;
+	color: white;
+	text-align: center;
+	font-weight: 900;
+	margin-top: 0px;
 }
 
 
 
+
+/* --------------- MENU BARS TITLE STYLING--------------- */  
 #title{
 	padding-left: 20px;
 	margin-top: 0px;
@@ -65,16 +93,15 @@ textarea {
 }
 
 #title h1{
-	font-size: 20px;
+	font-size: 18px;
 	color: #CD6155;
-	font-family: 'Roboto', sans-serif; 
-	/* font-weight: 100;  */
+	font-family: 'Lato', sans-serif; 
 }
 
 
 /* ------------------ CANVAS ------------------- */  
 canvas{
-	margin-top: 50px;
+	/* margin-top: 50px; */
 	margin-left: 270px;
 	background-color: rgba(242, 243, 244,1); 
 	z-index: -2; 

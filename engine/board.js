@@ -94,12 +94,10 @@ class Board{
 		});
 
 		document.addEventListener('mouseup', e => {
-			console.log("mouseup",e);
 			this.clicked = false;
 		});
 
 		document.addEventListener('mousedown', e => {
-			console.log("mousedown",e);
 			this.down = {x: e.clientX, y: e.clientY};
 			this.clicked = true;
 		});
