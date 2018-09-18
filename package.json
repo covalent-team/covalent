@@ -20,5 +20,6 @@
     "electron": "^2.0.0",
     "electron-connect": "^0.6.3",
     "gulp": "^3.9.1"
-  }
+  },
+  "dependencies": {}
 }

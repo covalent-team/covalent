@@ -11,19 +11,19 @@
     <div id="blackmenu"></div>
   
   
-	<!-- Dark red menu bar --> 
-	<div id="redmenu">
-    <h4>Explorer</h4>
-	</div>
+    <!-- Dark red menu bar --> 
+    <div id="redmenu"></div>
 
     <!-- _____ ADDING IMPORTANT JAVASCRIPT LIBRARIES HERE _____ -->
     <script>require('electron-connect').client.create()</script> 
+    <script> require('./renderer.js'); </script> 
     <script src="https://fb.me/react-15.0.0.js"></script>
     <script src="https://fb.me/react-dom-15.0.0.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script> 
-    <script type="text/babel" src="menubar/blackmenu.jsx"></script>
-    <script> require('./renderer.js') </script>
+    
+    <!-- _____ LOADING ALL JSX COMPONENTS (FIX THIS TRAGEDY LATER) ______ -->
+    <script type="text/babel" src="menubar/redmenu.jsx"></script>   
+    <script type="text/babel" src="menubar/blackmenu.jsx"></script> 
   </body>
 </html>
 

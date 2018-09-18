@@ -1,6 +1,14 @@
+/*
+    The black menu renders the list of icons on the black vertical menu bar.
+    It contains a state called clicked, to mark the ID (name) of the button being clicked
+    There are currently 5 buttons in total.
+*/
+
+const RedMenu = module.exports.RedMenu; 
+
 class BlackMenu extends React.Component{
 
-    // Construtor 
+    // Construtor to initalize when the menu bar is first rendered 
     constructor(props){
         super(props);  
         this.buttonArr = []; 
@@ -17,8 +25,6 @@ class BlackMenu extends React.Component{
                 </button>;  
             this.buttonArr.push(this.button);  
         }); 
-
-        console.log("this button arr", this.buttonArr); 
     }
 
 
@@ -26,19 +32,22 @@ class BlackMenu extends React.Component{
     handleClick(menuKey){
         this.setState({
             clicked: menuKey  
-        });        
+        });    
     } 
 
-    
-    // Render all the buttons. 
+    // Create a div to contain and render all buttons. 
     render(){
         return (
-            <div>{this.buttonArr}</div>
+            <div>
+                {this.buttonArr}
+                {/* <RedMenu clicked="exploration" />  */}
+            </div>
         )
     }
 }
 
-  ReactDOM.render(
+// Render the black menu from react. 
+ReactDOM.render(
     <BlackMenu/>,
     document.getElementById('blackmenu')
-  );
+);
