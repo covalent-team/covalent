@@ -47,7 +47,9 @@ class RedMenu extends React.Component{
 		})
 	}
 
-	// Check if a path is directory or a file 
+	/* Check if a path is directory or a file 
+	 	@return [true if it's a directory, false otherwise]
+	*/ 
 	checkDirectory(path){
 		return new Promise((resolve, reject) => {
 			fs.lstat(path, (err, stats) => {
@@ -64,11 +66,20 @@ class RedMenu extends React.Component{
 		}); 
 	}
 
-
+	/* Learn how to build 
+	 	@return [true if it's a directory, false otherwise]
+	*/ 
 	buildTree(){
-		console.log("this state filenames", this.state.fileNames); 
+	
+		// List of constants within buildTree 
 		var renderedTree = [];   
+		var renderedTreeFolder = []; 
+		var renderedTreeFile = []; 
 		var checkDirectoryPromiseArr = []; 
+		var folderIcon = <i className="fas fa-folder-open"></i>; 
+		var fileIcon = <i className="fas fa-file"></i>; 
+		var caretDownIcon = <i className="fas fa-caret-down"></i>
+		var caretRightIcon =  <i className="fas fa-caret-right"></i>; 
 		
 
 		// Return an array if a file is a file, or a directory 
@@ -79,30 +90,27 @@ class RedMenu extends React.Component{
 				checkDirectoryPromiseArr.push(checkDirectoryPromise); 
 			}
 
-			// Create the icons to embedded within the p tag 
-			var folderIcon = <i className="fas fa-folder-open"></i>; 
-			var fileIcon = <i className="fas fa-file"></i>
-			var folderLine = <p>{folderIcon}Hello World</p>; 
+		
 		
 			// Create the <p> tag for each file and folder icon and add it to the rendered tree 
 			Promise.all(checkDirectoryPromiseArr).then((checkDirectoryArrVal) => {
 				checkDirectoryArrVal.forEach((val, i) => {
 					if (val == true){
-						var folderLine = <p key={i}> {folderIcon}{this.state.fileNames[0][i]}</p>
-						renderedTree.push(folderLine); 
+						var folderLine = <p key={i}>{caretDownIcon}{folderIcon}{this.state.fileNames[0][i]}</p>
+						renderedTreeFolder.push(folderLine); 
 					} 
 					else{
-						var fileLine = <p key={i}> {fileIcon}{this.state.fileNames[0][i]}</p> 
-						renderedTree.push(fileLine); 
+						var fileLine = <p key={i}>{caretRightIcon}{fileIcon}{this.state.fileNames[0][i]}</p> 
+						renderedTreeFile.push(fileLine); 
 					}
 				})
+				renderedTree = renderedTree.concat(renderedTreeFolder, renderedTreeFile); 
 				this.setState({
 					stateTree: renderedTree
 				}); 
 			})
 		}
 	}
-
 	
 
   // Return a list of files if user had added workspace 
@@ -117,7 +125,6 @@ class RedMenu extends React.Component{
 			)
 		}
 		
-
 
 		// Else return input box for user to chooose file 
 		return ( 

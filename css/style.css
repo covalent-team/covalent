@@ -87,6 +87,10 @@ button {
     text-overflow: ellipsis;
 }
 
+#redmenu i{
+	margin-right: 5px; 
+}
+
 
 /* --------------- MENU BARS TITLE STYLING--------------- */  
 #title{
