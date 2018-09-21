@@ -1,6 +1,7 @@
 //engine core
 const path = require('path');
 const nodebuilder = require(path.join(__dirname, '/node-builder.js'));
+const fraction = require('fractional').Fraction;
 
 var exports = module.exports = {};
 class Board{
@@ -12,6 +13,8 @@ class Board{
 		this.mouseX = 1;
 		this.mouseY = 1;
 		this.nodeStack = [];
+		this.zoom = 1;
+		this.inverseZoom = 1;
 
 		this.dragState = {
 			clicked: false,
@@ -22,7 +25,7 @@ class Board{
 		this.nodeBuilder = nodebuilder.create(this.context);
 
 		this.canvas.width  = document.body.clientWidth;
-  		this.canvas.height = document.documentElement.scrollHeight;///1.618;
+  		this.canvas.height = document.documentElement.scrollHeight;//1.618;
   		this.initEventListeners();
   		this.tick();
 	}
@@ -51,13 +54,23 @@ class Board{
 	update() {
 	}
 
+	getInverse(decimal){
+		var f = new fraction(decimal);
+		return f.denominator/f.numerator;
+	}
+
 
 	globalOrNodeDrag(){
-		var canvasMouse = {x: this.mouseX - 270, y: this.mouseY - 50};  //static numbers for canvas offset
 		for(var i in this.nodeStack){
 			var loc = this.nodeStack[i].getJSON();
-			if(canvasMouse.x >= loc.x && canvasMouse.x <= loc.x + loc.width){
-				if(canvasMouse.y >= loc.y && canvasMouse.y <= loc.y + loc.height){
+
+			loc.x = loc.x * this.zoom;
+			loc.y = loc.y * this.zoom;
+			loc.width = loc.width * this.zoom;
+			loc.height = loc.height * this.zoom;
+
+			if(this.mouseX >= loc.x && this.mouseX <= loc.x + loc.width){
+				if(this.mouseY >= loc.y && this.mouseY <= loc.y + loc.height){
 					console.log("inside!");
 					this.dragState.node = this.nodeStack[i];
 					this.dragState.global = false;
@@ -67,9 +80,7 @@ class Board{
 	}
 
 	moveNode(node){
-		if(this.dragState.clicked == true){
-			node.addRelativeXY(this.diffMouse.x, this.diffMouse.y);
-		}
+		node.addRelativeXY(this.diffMouse.x * this.inverseZoom, this.diffMouse.y * this.inverseZoom);
 	}
 
 	render() {
@@ -83,9 +94,12 @@ class Board{
 			var obj = this.nodeStack[i].getJSON();
 
 			if(this.dragState.clicked && this.dragState.global){
-				this.nodeStack[i].addRelativeXY(this.diffMouse.x, this.diffMouse.y);
+				this.moveNode(this.nodeStack[i]);
 			}
-			
+			obj.height = obj.height * this.zoom;
+			obj.width = obj.width * this.zoom;
+			obj.x = obj.x * this.zoom;
+			obj.y = obj.y * this.zoom;
 
 			this.nodeBuilder.parseJSON(obj);
 			this.context.stroke();
@@ -99,26 +113,29 @@ class Board{
 
 
 	mouseWheelZoom(e){
-		// var value;
-		// if(e.deltaY > 0){
-		// 	//console.log("zoom out");
-		// 	if(this.offset.z > 0.5){
-		// 		if(this.offset.z >= 0){
-		// 			this.offset.z -= 0.10;
-		// 		}else{
-		// 			this.offset.z -= 0.05;
-		// 		}
-		// 	}
-		// }else if(e.deltaY < 0){
-		// 	//console.log("zoom in");
-		// 	if(this.offset.z < 2){
-		// 		if(this.offset.z <= 0){
-		// 			this.offset.z += 0.05;
-		// 		}else{
-		// 			this.offset.z += 0.10;
-		// 		}
-		// 	}
-		// }
+		var value;
+		if(e.deltaY > 0){
+			//console.log("zoom out");
+			if(this.zoom > 0.5){
+				if(this.zoom >= 0){
+					this.zoom -= 0.10;
+				}else{
+					this.zoom -= 0.05;
+				}
+			}
+		}else if(e.deltaY < 0){
+			//console.log("zoom in");
+			if(this.zoom < 2){
+				if(this.zoom <= 0){
+					this.zoom += 0.05;
+				}else{
+					this.zoom += 0.10;
+				}
+			}
+		}
+		this.zoom = Math.round(this.zoom * 100) / 100;
+		console.log("this.zoom",this.zoom);
+		this.inverseZoom = this.getInverse(this.zoom);
 	}
 
 	resetDragState(){
@@ -131,27 +148,27 @@ class Board{
 
 	//event listeners
 	initEventListeners() {
-		document.addEventListener('mousemove', e => {
-			//console.log("e",e);
-			this.mouseX = e.clientX;  //numbers are static based on side UI
-			this.mouseY = e.clientY;
+		this.canvas.addEventListener('mousemove', e => {
+			console.log("e",e);
+			this.mouseX = e.layerX;  //numbers are static based on side UI
+			this.mouseY = e.layerY;
 			this.diffMouse = {x: e.movementX, y: e.movementY};
-			//this.globalOrNodeDrag();
 			this.tick();
+			this.globalOrNodeDrag();
 		});
 
-		document.addEventListener('mouseup', e => {
+		this.canvas.addEventListener('mouseup', e => {
 			console.log("mouseup",e);
 			this.resetDragState();
 		});
 
-		document.addEventListener('mousedown', e => {
+		this.canvas.addEventListener('mousedown', e => {
 			console.log("mousedown",e);
 			this.dragState.clicked = true;
 			this.globalOrNodeDrag();
 		});
 
-		document.addEventListener('wheel', e => {
+		this.canvas.addEventListener('wheel', e => {
 			//console.log("wheel",e); //foward = -deltaY, backward = +deltaY
 			this.mouseWheelZoom(e);
 			this.tick();
@@ -165,7 +182,7 @@ class Board{
 
 		});
 
-		document.addEventListener('click', e => {
+		this.canvas.addEventListener('click', e => {
 
 		});
 	}
