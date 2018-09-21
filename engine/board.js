@@ -13,10 +13,11 @@ class Board{
 		this.mouseY = 1;
 		this.nodeStack = [];
 
-		this.down = {x: 0, y: 0};
-		this.offset = {x: 0, y: 0, z: 1};
-		this.prevOffset = {x: 0, y: 0, z: 1};
-		this.clicked = false;
+		this.dragState = {
+			clicked: false,
+			global: true,
+			node: null
+		};
 
 		this.nodeBuilder = nodebuilder.create(this.context);
 
@@ -48,18 +49,47 @@ class Board{
 	}
 
 	update() {
-		this.calculateOffset();
+	}
+
+
+	globalOrNodeDrag(){
+		var canvasMouse = {x: this.mouseX - 270, y: this.mouseY - 50};  //static numbers for canvas offset
+		for(var i in this.nodeStack){
+			var loc = this.nodeStack[i].getJSON();
+			if(canvasMouse.x >= loc.x && canvasMouse.x <= loc.x + loc.width){
+				if(canvasMouse.y >= loc.y && canvasMouse.y <= loc.y + loc.height){
+					console.log("inside!");
+					this.dragState.node = this.nodeStack[i];
+					this.dragState.global = false;
+				}
+			}
+		}
+	}
+
+	moveNode(node){
+		if(this.dragState.clicked == true){
+			node.addRelativeXY(this.diffMouse.x, this.diffMouse.y);
+		}
 	}
 
 	render() {
-		this.context.setTransform(this.offset.z,0,0,this.offset.z,this.offset.x,this.offset.y);
+		if(this.dragState.clicked && !this.dragState.global){
+			this.moveNode(this.dragState.node);
+		}
+
 		for(var i in this.nodeStack){
 			this.context.beginPath();
+
 			var obj = this.nodeStack[i].getJSON();
+
+			if(this.dragState.clicked && this.dragState.global){
+				this.nodeStack[i].addRelativeXY(this.diffMouse.x, this.diffMouse.y);
+			}
+			
+
 			this.nodeBuilder.parseJSON(obj);
 			this.context.stroke();
 		}
-		//console.log("render");
 	}
 
 	clear() {
@@ -67,60 +97,58 @@ class Board{
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 	}
 
-	calculateOffset(){
-	if(this.clicked == true){
-			this.offset = {
-				x: this.prevOffset.x + (this.mouseX - this.down.x), 
-				y: this.prevOffset.y + (this.mouseY - this.down.y),
-				z: this.offset.z
-			};
-		}else{
-			this.prevOffset = this.offset;
-		}
-	}
 
 	mouseWheelZoom(e){
-		var value;
-		if(e.deltaY > 0){
-			//console.log("zoom out");
-			if(this.offset.z > 0.5){
-				if(this.offset.z >= 0){
-					this.offset.z -= 0.10;
-				}else{
-					this.offset.z -= 0.05;
-				}
-			}
-		}else if(e.deltaY < 0){
-			//console.log("zoom in");
-			if(this.offset.z < 2){
-				if(this.offset.z <= 0){
-					this.offset.z += 0.05;
-				}else{
-					this.offset.z += 0.10;
-				}
-			}
-		}
+		// var value;
+		// if(e.deltaY > 0){
+		// 	//console.log("zoom out");
+		// 	if(this.offset.z > 0.5){
+		// 		if(this.offset.z >= 0){
+		// 			this.offset.z -= 0.10;
+		// 		}else{
+		// 			this.offset.z -= 0.05;
+		// 		}
+		// 	}
+		// }else if(e.deltaY < 0){
+		// 	//console.log("zoom in");
+		// 	if(this.offset.z < 2){
+		// 		if(this.offset.z <= 0){
+		// 			this.offset.z += 0.05;
+		// 		}else{
+		// 			this.offset.z += 0.10;
+		// 		}
+		// 	}
+		// }
+	}
+
+	resetDragState(){
+		this.dragState = {
+			clicked: false,
+			global: true,
+			node: null
+		};
 	}
 
 	//event listeners
 	initEventListeners() {
 		document.addEventListener('mousemove', e => {
-			
-			this.mouseX = e.clientX;
+			//console.log("e",e);
+			this.mouseX = e.clientX;  //numbers are static based on side UI
 			this.mouseY = e.clientY;
-
+			this.diffMouse = {x: e.movementX, y: e.movementY};
+			//this.globalOrNodeDrag();
 			this.tick();
 		});
 
 		document.addEventListener('mouseup', e => {
 			console.log("mouseup",e);
-			this.clicked = false;
+			this.resetDragState();
 		});
 
 		document.addEventListener('mousedown', e => {
 			console.log("mousedown",e);
-			this.down = {x: e.clientX, y: e.clientY};
-			this.clicked = true;
+			this.dragState.clicked = true;
+			this.globalOrNodeDrag();
 		});
 
 		document.addEventListener('wheel', e => {
