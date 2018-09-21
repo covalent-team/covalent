@@ -21,7 +21,7 @@ class Object{
 	getLocData(){
 		return {
 			x: this.x,
-			y: this.y
+			y: this.y,
 		};
 	}
 
@@ -34,12 +34,9 @@ class Object{
 		};
 	}
 
-	setX(x){
-		this.x = x;
-	}
-
-	setY(y){
-		this.y = y;
+	addRelativeXY(x,y){
+		this.x += x;
+		this.y += y;
 	}
 
 	update(){
