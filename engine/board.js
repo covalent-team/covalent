@@ -6,6 +6,7 @@ const fraction = require('fractional').Fraction;
 var exports = module.exports = {};
 class Board{
 	constructor(){
+	
 		this.canvas = document.createElement('canvas');
 		document.body.appendChild(this.canvas);
 		this.context = this.canvas.getContext('2d');
@@ -193,3 +194,5 @@ class Board{
 exports.create = function(){
 	return new Board();
 }
+
+

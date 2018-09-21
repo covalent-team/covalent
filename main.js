@@ -1,7 +1,7 @@
 // Modules to control application life and create native browser window
 
 'use strict'; 
-const {app, BrowserWindow} = require('electron')
+const {app, BrowserWindow, Menu} = require('electron')
 const core = require( __dirname + '/engine/core.js');
 
 // Add in client for Gulp 
@@ -15,13 +15,13 @@ function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     titleBarStyle: 'hidden',
-    width: 800, 
-    height: 600})
+    width: 1200, 
+    height: 700})
 
   // and load the index.html of the app.
   mainWindow.loadFile('index.html')
   // Open the DevTools.
-  //mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools()
 
   client.create(mainWindow, function () {
       console.log('client create mainwindow done');

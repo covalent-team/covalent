@@ -2,24 +2,39 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Covalent</title>
     <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
   </head>
   <body>
-    <div id="menubar"></div>
-    <div id="menubar2"></div>
-    <div id="title">
-      <h1>Canvas</h1>
-    </div> 
-        
 
+    <!-- Black menu bar -->
+    <div id="blackmenu"></div>
+  
+  
+    <!-- Dark red menu bar --> 
+    <div id="redmenu"></div>
 
+    <!-- _____ ADDING IMPORTANT JAVASCRIPT LIBRARIES HERE _____ -->
     <script>require('electron-connect').client.create()</script> 
-    <script>
-      
-      // You can also require other files to run in this process
-
-      require('./renderer.js')
-    </script>
+    <script> require('./renderer.js'); </script> 
+    <script src="https://fb.me/react-15.0.0.js"></script>
+    <script src="https://fb.me/react-dom-15.0.0.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+    
+    <!-- _____ LOADING ALL JSX COMPONENTS (FIX THIS TRAGEDY LATER) ______ -->
+    <script type="text/babel" src="menubar/redmenu.jsx"></script>   
+    <script type="text/babel" src="menubar/blackmenu.jsx"></script> 
   </body>
 </html>
+
+
+
+
+	<!-- White title bar--> 
+    <!-- <div id="title">
+      <h1>Canvas</h1>
+    </div>  -->
+
+
+  
+        
