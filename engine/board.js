@@ -1,6 +1,7 @@
 //engine core
 const path = require('path');
 const nodebuilder = require(path.join(__dirname, '/node-builder.js'));
+const connectorbuilder = require(path.join(__dirname, '/connector-builder.js'));
 const fraction = require('fractional').Fraction;
 
 var exports = module.exports = {};
@@ -14,6 +15,8 @@ class Board{
 		this.mouseX = 1;
 		this.mouseY = 1;
 		this.nodeStack = [];
+		this.connectorStack = [];
+
 		this.zoom = 1;
 		this.inverseZoom = 1;
 
@@ -24,6 +27,7 @@ class Board{
 		};
 
 		this.nodeBuilder = nodebuilder.create(this.context);
+		this.connectorBuilder = connectorbuilder.create(this.context);
 
 		this.canvas.width  = document.body.clientWidth;
   		this.canvas.height = document.documentElement.scrollHeight;//1.618;
@@ -88,6 +92,23 @@ class Board{
 		if(this.dragState.clicked && !this.dragState.global){
 			this.moveNode(this.dragState.node);
 		}
+
+		//render mouse dot
+		this.context.beginPath();
+		this.nodeBuilder.parseJSON({x: this.mouseX, y: this.mouseY, height: 1, width: 1});
+		this.context.stroke();
+
+		//connector test
+		if(this.nodeStack.length == 2){
+			this.context.beginPath();
+			var first = this.nodeStack[0].getJSON();
+			var second = this.nodeStack[1].getJSON();
+			var start = {x: first.x + first.width, y: first.y};
+			var end = {x: second.x, y: second.y};
+			this.connectorBuilder.makeConnector(start, end);
+			this.context.stroke();
+		}
+		
 
 		for(var i in this.nodeStack){
 			this.context.beginPath();
@@ -155,7 +176,7 @@ class Board{
 			this.mouseY = e.layerY;
 			this.diffMouse = {x: e.movementX, y: e.movementY};
 			this.tick();
-			this.globalOrNodeDrag();
+			//this.globalOrNodeDrag();
 		});
 
 		this.canvas.addEventListener('mouseup', e => {
