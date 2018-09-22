@@ -103,8 +103,8 @@ class Board{
 			this.context.beginPath();
 			var first = this.nodeStack[0].getJSON();
 			var second = this.nodeStack[1].getJSON();
-			var start = {x: first.x + first.width, y: first.y};
-			var end = {x: second.x, y: second.y};
+			var start = {x: (first.x + first.width) * this.zoom, y: first.y * this.zoom};
+			var end = {x: second.x * this.zoom, y: second.y * this.zoom};
 			this.connectorBuilder.makeConnector(start, end);
 			this.context.stroke();
 		}
