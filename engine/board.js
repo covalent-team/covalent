@@ -171,7 +171,7 @@ class Board{
 	//event listeners
 	initEventListeners() {
 		this.canvas.addEventListener('mousemove', e => {
-			console.log("e",e);
+			// console.log("e",e);
 			this.mouseX = e.layerX;  //numbers are static based on side UI
 			this.mouseY = e.layerY;
 			this.diffMouse = {x: e.movementX, y: e.movementY};
@@ -180,12 +180,12 @@ class Board{
 		});
 
 		this.canvas.addEventListener('mouseup', e => {
-			console.log("mouseup",e);
+			// console.log("mouseup",e);
 			this.resetDragState();
 		});
 
 		this.canvas.addEventListener('mousedown', e => {
-			console.log("mousedown",e);
+			// console.log("mousedown",e);
 			this.dragState.clicked = true;
 			this.globalOrNodeDrag();
 		});

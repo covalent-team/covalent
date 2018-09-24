@@ -11,7 +11,7 @@ gulp.task('default', function () {
     electron.start();
 
     // Restart browser process
-    gulp.watch(['main.js', 'renderer.js', 'menubar/**'], electron.restart);
+    gulp.watch(['main.js', 'renderer.js', 'menubar/**', 'engine/**'], electron.restart);
 
     // Reload renderer process
     gulp.watch(['index.html', 'css/style.css'], electron.reload);

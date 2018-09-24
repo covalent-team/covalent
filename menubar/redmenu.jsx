@@ -1,4 +1,6 @@
 const fs = require('fs'); 
+const homedir = require('os').homedir(); 
+const settingsFilePath = homedir + '/covalentsettings.json'; 
 
 // This renders the file structure folder on the app 
 class RedMenu extends React.Component{
@@ -13,7 +15,33 @@ class RedMenu extends React.Component{
 				menuPath: "", 
 				stateTree: [] 
 		}
+		this.readUserSettings(); 
 	}
+
+
+	// Load preset of user settings 
+	readUserSettings(){
+		fs.readFile(settingsFilePath, (err, dataBuffer) => {
+			if (err) throw err;
+			else {
+				var data = dataBuffer.toString('utf8'); 
+				var dataObj = JSON.parse(data);
+				var treePath = dataObj.workspacepath; 
+				if (treePath){
+					var getTreeContentPromise = this.getTreeContent(treePath); 
+					getTreeContentPromise.then((treeContent) => {
+						this.setState({
+							fileNames: treeContent, 
+							menuPath: treePath 
+						})
+						this.buildTree();  
+					});  
+				}
+			}
+		});
+	}
+
+
 
   // Handle workspace creation when user click add file button 
 	handleChange(selectorFiles){
@@ -28,6 +56,23 @@ class RedMenu extends React.Component{
 			})
 			this.buildTree();  
 		});  
+		this.storeUserWorspace(treePath);   
+	} 
+
+
+	// This store the path of the user's workspace 
+	storeUserWorspace(path){
+		var data = {
+			workspacepath: path 
+		}
+		var dataString = JSON.stringify(data); 
+		fs.writeFile(settingsFilePath, dataString, (err) => {
+			if (err){
+				console.error(err); 
+			} else{
+				console.log("File has been saved"); 
+			}
+		})
 	} 
 		
 	/* Return an array of content within a path for the tree structure  
@@ -115,11 +160,17 @@ class RedMenu extends React.Component{
 
   // Return a list of files if user had added workspace 
 	render(){
+
+
+		
+
+
 		if (this.state.stateTree.length > 0){
 			console.log("statetree", this.state.stateTree);  
 			return (
 				<div>
 					<h4>Workspace</h4>
+					{this.uploadInput}
 					{this.state.stateTree}
 				</div>
 			)
@@ -128,10 +179,10 @@ class RedMenu extends React.Component{
 
 		// Else return input box for user to chooose file 
 		return ( 
-				<div>
-						<h4>Workspace</h4> 
-						{this.uploadInput}
-				</div>
+		<div>
+				<h4>Workspace</h4> 
+				{this.uploadInput}
+		</div>
 		)
 	}
 }
@@ -144,3 +195,5 @@ ReactDOM.render(
 
 // Export the red menu modules 
 module.exports.RedMenu = RedMenu; 
+
+
