@@ -122,7 +122,7 @@ class Board{
 			if(this.mouseX >= loc.leftExec.x && this.mouseX <= loc.leftExec.x + loc.leftExec.width){
 				if(this.mouseY >= loc.leftExec.y && this.mouseY <= loc.leftExec.y + loc.leftExec.height){
 					console.log("inside leftExec");
-					this.dragState.node = this.nodeStack[i];
+					this.dragState.nodeIndex = i;
 					this.dragState.socketType = 'leftExec';
 					this.dragState.global = false;
 					this.dragState.isSocket = true;
@@ -139,7 +139,7 @@ class Board{
 			if(this.mouseX >= loc.rightExec.x && this.mouseX <= loc.rightExec.x + loc.rightExec.width){
 				if(this.mouseY >= loc.rightExec.y && this.mouseY <= loc.rightExec.y + loc.rightExec.height){
 					console.log("inside rightExec");
-					this.dragState.node = this.nodeStack[i];
+					this.dragState.nodeIndex = i;
 					this.dragState.socketType = 'rightExec';
 					this.dragState.global = false;
 					this.dragState.isSocket = true;
@@ -197,9 +197,23 @@ class Board{
 				var start = {nodeIndex: startSoc.nodeIndex, socketIndex: startSoc.socketIndex, socketType: startSoc.socketType};
 				var end = {nodeIndex: this.dragState.nodeIndex, socketIndex: this.dragState.socketIndex, socketType: this.dragState.socketType};
 
+				//validate if can connect to this socket
 				if(start.nodeIndex == end.nodeIndex && start.socketIndex == end.socketIndex){
 					console.log("same place, dont");
 				}
+				else if(start.socketType == end.socketType){
+					console.log("both sockets are the same type");
+				}
+				else if(start.socketType == 'leftExec' && end.socketType != 'rightExec'){
+					console.log("execs must be connected to eachother");
+				}
+				else if(start.socketType == 'rightExec' && end.socketType != 'leftExec'){
+					console.log("execs must be connected to eachother");
+				}
+
+
+
+				//if validated, connect!
 				else{
 					var newConnector = connector.create(start, end, startSoc.socketLocation.isReversed);
 					this.connectorStack.push(newConnector);
@@ -226,19 +240,38 @@ class Board{
 			var first = this.nodeBuilder.getHitZones(this.nodeStack[obj.start.nodeIndex].getJSON());
 			var second = this.nodeBuilder.getHitZones(this.nodeStack[obj.end.nodeIndex].getJSON());
 
+			console.log("first",first);
+			console.log("second",second);
+			//args or returns
 			if(obj.start.socketType == 'args'){
-				var start = {x: first.args[obj.start.socketIndex].x * this.zoom, y: first.args[obj.start.socketIndex].y * this.zoom};
+				var start = {x: first.args[obj.start.socketIndex].x, y: first.args[obj.start.socketIndex].y};
 			}
 			else if(obj.start.socketType == 'returns'){
-				var start = {x: first.returns[obj.start.socketIndex].x * this.zoom, y: first.returns[obj.start.socketIndex].y * this.zoom};
+				var start = {x: first.returns[obj.start.socketIndex].x, y: first.returns[obj.start.socketIndex].y};
 			}
-
 			if(obj.end.socketType == 'args'){
-				var end = {x: second.args[obj.end.socketIndex].x * this.zoom, y: second.args[obj.end.socketIndex].y * this.zoom};
+				var end = {x: second.args[obj.end.socketIndex].x, y: second.args[obj.end.socketIndex].y};
 			}
 			else if(obj.end.socketType == 'returns'){
-				var end = {x: second.returns[obj.end.socketIndex].x * this.zoom, y: second.returns[obj.end.socketIndex].y * this.zoom};
+				var end = {x: second.returns[obj.end.socketIndex].x, y: second.returns[obj.end.socketIndex].y};
 			}
+
+			//leftExecs
+			if(obj.start.socketType == 'leftExec'){
+				var start = {x: first.leftExec.x + (first.leftExec.width/2), y: first.leftExec.y + (first.leftExec.height/2)};
+			}
+			else if(obj.end.socketType == 'leftExec'){
+				var end = {x: second.leftExec.x + (second.leftExec.width/2), y: second.leftExec.y + (second.leftExec.height/2)};
+			}
+
+			//rightExec
+			if(obj.start.socketType == 'rightExec'){
+				var start = {x: first.rightExec.x + (first.rightExec.width/2), y: first.rightExec.y + (first.rightExec.height/2)};
+			}
+			else if(obj.end.socketType == 'rightExec'){
+				var end = {x: second.rightExec.x + (second.rightExec.width/2), y: second.rightExec.y + (second.rightExec.height/2)};
+			}
+
 			this.context.beginPath();
 			this.connectorBuilder.makeConnector(start, end, obj.isReversed);
 			this.context.stroke();
@@ -290,6 +323,7 @@ class Board{
 		this.zoom = Math.round(this.zoom * 100) / 100;
 		console.log("this.zoom",this.zoom);
 		this.inverseZoom = this.getInverse(this.zoom);
+		this.render();
 	}
 
 	resetDragState(){
