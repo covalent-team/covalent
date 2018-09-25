@@ -30,7 +30,12 @@ class Object{
 			x: this.x,
 			y: this.y,
 			height: this.height,
-			width: this.width
+			width: this.width,
+			args: [1,2],
+			returns: [1],
+			isEvent: false,
+			isReturn: false,
+			isPure: false
 		};
 	}
 

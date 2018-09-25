@@ -22,6 +22,7 @@ class Board{
 
 		this.dragState = {
 			clicked: false,
+			isSocket: false,
 			global: true,
 			node: null
 		};
@@ -67,18 +68,81 @@ class Board{
 
 	globalOrNodeDrag(){
 		for(var i in this.nodeStack){
-			var loc = this.nodeStack[i].getJSON();
+			//var loc = this.nodeStack[i].getJSON();
+			var loc = this.nodeBuilder.getHitZones(this.nodeStack[i].getJSON());
+			console.log("loc",loc);
 
-			loc.x = loc.x * this.zoom;
-			loc.y = loc.y * this.zoom;
-			loc.width = loc.width * this.zoom;
-			loc.height = loc.height * this.zoom;
+			//if argument sockets collision is true
+			var j;
+			for(j in loc.args){
+				if(this.mouseX >= loc.args[j].x-loc.args[j].radius && this.mouseX <= loc.args[j].x+loc.args[j].radius){
+					if(this.mouseY >= loc.args[j].y-loc.args[j].radius && this.mouseY <= loc.args[j].y+loc.args[j].radius){
+						console.log("inside args");
+						this.dragState.node = this.nodeStack[i];
+						this.dragState.global = false;
+						this.dragState.isSocket = true;
+						this.dragState.socketLocation = {
+							x: loc.args[j].x,
+							y: loc.args[j].y
+						};
+						return;
+					}
+				}
+			}
+
+			//if return sockets collision is true
+			for(j in loc.returns){
+				if(this.mouseX >= loc.returns[j].x-loc.returns[j].radius && this.mouseX <= loc.returns[j].x+loc.returns[j].radius){
+					if(this.mouseY >= loc.returns[j].y-loc.returns[j].radius && this.mouseY <= loc.returns[j].y+loc.returns[j].radius){
+						console.log("inside returns");
+						this.dragState.node = this.nodeStack[i];
+						this.dragState.global = false;
+						this.dragState.isSocket = true;
+						this.dragState.socketLocation = {
+							x: loc.returns[j].x,
+							y: loc.returns[j].y
+						};
+						return;
+					}
+				}
+			}
+
+			//if leftExec socket collision is true
+			if(this.mouseX >= loc.leftExec.x && this.mouseX <= loc.leftExec.x + loc.leftExec.width){
+				if(this.mouseY >= loc.leftExec.y && this.mouseY <= loc.leftExec.y + loc.leftExec.height){
+					console.log("inside leftExec");
+					this.dragState.node = this.nodeStack[i];
+					this.dragState.global = false;
+					this.dragState.isSocket = true;
+					this.dragState.socketLocation = {
+							x: loc.leftExec.x + (loc.leftExec.width/2),
+							y: loc.leftExec.y + (loc.leftExec.height/2)
+						};
+					return;
+				}
+			}
+
+			//if rightExec socket collision is true
+			if(this.mouseX >= loc.rightExec.x && this.mouseX <= loc.rightExec.x + loc.rightExec.width){
+				if(this.mouseY >= loc.rightExec.y && this.mouseY <= loc.rightExec.y + loc.rightExec.height){
+					console.log("inside rightExec");
+					this.dragState.node = this.nodeStack[i];
+					this.dragState.global = false;
+					this.dragState.isSocket = true;
+					this.dragState.socketLocation = {
+							x: loc.rightExec.x + (loc.rightExec.width/2),
+							y: loc.rightExec.y + (loc.rightExec.height/2)
+						};
+					return;
+				}
+			}
 
 			if(this.mouseX >= loc.x && this.mouseX <= loc.x + loc.width){
 				if(this.mouseY >= loc.y && this.mouseY <= loc.y + loc.height){
 					console.log("inside!");
 					this.dragState.node = this.nodeStack[i];
 					this.dragState.global = false;
+					return;
 				}
 			}
 		}
@@ -89,14 +153,24 @@ class Board{
 	}
 
 	render() {
-		if(this.dragState.clicked && !this.dragState.global){
+		//if dragged body of node (not sockets), then drag the node around
+		if(this.dragState.clicked && !this.dragState.global && !this.dragState.isSocket){
 			this.moveNode(this.dragState.node);
 		}
+		else if(this.dragState.clicked && !this.dragState.global && this.dragState.isSocket){
+			this.context.beginPath();
 
-		//render mouse dot
-		this.context.beginPath();
-		this.nodeBuilder.parseJSON({x: this.mouseX, y: this.mouseY, height: 1, width: 1});
-		this.context.stroke();
+			var socketLoc = this.dragState.socketLocation;
+			var start = {x: socketLoc.x, y: socketLoc.y};
+			var end = {x: this.mouseX, y: this.mouseY};
+			this.connectorBuilder.makeConnector(start, end);
+			this.context.stroke();
+		}
+
+		// //render mouse dot
+		// this.context.beginPath();
+		// this.nodeBuilder.parseJSON({x: this.mouseX, y: this.mouseY, height: 1, width: 1,args:[],returns:[]});
+		// this.context.stroke();
 
 		//connector test
 		if(this.nodeStack.length == 2){
@@ -111,20 +185,17 @@ class Board{
 		
 
 		for(var i in this.nodeStack){
-			this.context.beginPath();
+			
 
 			var obj = this.nodeStack[i].getJSON();
 
-			if(this.dragState.clicked && this.dragState.global){
+			//if clicked on global stuff
+			if(this.dragState.clicked && this.dragState.global && !this.dragState.isSocket){
 				this.moveNode(this.nodeStack[i]);
 			}
-			obj.height = obj.height * this.zoom;
-			obj.width = obj.width * this.zoom;
-			obj.x = obj.x * this.zoom;
-			obj.y = obj.y * this.zoom;
-
+			this.nodeBuilder.addZoom(this.zoom);
 			this.nodeBuilder.parseJSON(obj);
-			this.context.stroke();
+			
 		}
 	}
 
@@ -164,6 +235,7 @@ class Board{
 		this.dragState = {
 			clicked: false,
 			global: true,
+			isSocket: false,
 			node: null
 		};
 	}
@@ -171,7 +243,7 @@ class Board{
 	//event listeners
 	initEventListeners() {
 		this.canvas.addEventListener('mousemove', e => {
-			console.log("e",e);
+			//console.log("e",e);
 			this.mouseX = e.layerX;  //numbers are static based on side UI
 			this.mouseY = e.layerY;
 			this.diffMouse = {x: e.movementX, y: e.movementY};

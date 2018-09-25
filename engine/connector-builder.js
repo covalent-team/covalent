@@ -20,9 +20,9 @@ class connectorBuilder{
 	    };
 	}
 
-	makeConnector(start, end){
+	makeConnector(start, end, isReversed){
 		this.context.moveTo(start.x,start.y);
-		var curve = this.bezierCurveCalc(start, end);
+		var curve = this.bezierCurveCalc(start, end, isReversed);
 		this.context.bezierCurveTo(curve.cp1.x, curve.cp1.y, curve.cp2.x, curve.cp2.y, end.x, end.y);
 	}
 }
