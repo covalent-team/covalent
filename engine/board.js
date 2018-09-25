@@ -83,10 +83,11 @@ class Board{
 				if(this.mouseX >= loc.args[j].x-loc.args[j].radius && this.mouseX <= loc.args[j].x+loc.args[j].radius){
 					if(this.mouseY >= loc.args[j].y-loc.args[j].radius && this.mouseY <= loc.args[j].y+loc.args[j].radius){
 						console.log("inside args");
-						this.dragState.node = this.nodeStack[i];
+						this.dragState.nodeIndex = i;
+						this.dragState.socketType = 'args';
 						this.dragState.global = false;
 						this.dragState.isSocket = true;
-						this.dragState.socketRef = this.nodeStack[i].args[loc.args[j].index];
+						this.dragState.socketIndex = j;
 						this.dragState.socketLocation = {
 							x: loc.args[j].x,
 							y: loc.args[j].y,
@@ -102,10 +103,11 @@ class Board{
 				if(this.mouseX >= loc.returns[j].x-loc.returns[j].radius && this.mouseX <= loc.returns[j].x+loc.returns[j].radius){
 					if(this.mouseY >= loc.returns[j].y-loc.returns[j].radius && this.mouseY <= loc.returns[j].y+loc.returns[j].radius){
 						console.log("inside returns");
-						this.dragState.node = this.nodeStack[i];
+						this.dragState.nodeIndex = i;
+						this.dragState.socketType = 'returns';
 						this.dragState.global = false;
 						this.dragState.isSocket = true;
-						this.dragState.socketRef = this.nodeStack[i].returns[loc.returns[j].index];
+						this.dragState.socketIndex = j;
 						this.dragState.socketLocation = {
 							x: loc.returns[j].x,
 							y: loc.returns[j].y,
@@ -121,6 +123,7 @@ class Board{
 				if(this.mouseY >= loc.leftExec.y && this.mouseY <= loc.leftExec.y + loc.leftExec.height){
 					console.log("inside leftExec");
 					this.dragState.node = this.nodeStack[i];
+					this.dragState.socketType = 'leftExec';
 					this.dragState.global = false;
 					this.dragState.isSocket = true;
 					this.dragState.socketLocation = {
@@ -137,6 +140,7 @@ class Board{
 				if(this.mouseY >= loc.rightExec.y && this.mouseY <= loc.rightExec.y + loc.rightExec.height){
 					console.log("inside rightExec");
 					this.dragState.node = this.nodeStack[i];
+					this.dragState.socketType = 'rightExec';
 					this.dragState.global = false;
 					this.dragState.isSocket = true;
 					this.dragState.socketLocation = {
@@ -174,7 +178,7 @@ class Board{
 			this.context.beginPath();
 			var socketLoc = this.dragState.socketLocation;
 			this.connectionStarted.bool = true;
-			this.connectionStarted.loc = socketLoc;
+			this.connectionStarted.info = this.dragState;
 			var start = {x: socketLoc.x, y: socketLoc.y};
 			var end = {x: this.mouseX, y: this.mouseY};
 			this.connectorBuilder.makeConnector(start, end, socketLoc.isReversed);
@@ -184,16 +188,20 @@ class Board{
 		//if button released on a socket, and connector was started, then attach it
 		else if(!this.dragState.clicked && !this.dragState.global && this.dragState.isSocket){
 			if(this.connectionStarted.bool == true){
-				console.log("connected!!")
-				var socketLoc = this.connectionStarted.loc;
-				var start = {x: socketLoc.x, y: socketLoc.y};
-				var end = {x: this.dragState.socketLocation.x, y: this.dragState.socketLocation.y};
+				console.log("connected!!", this.connectionStarted);
+				var startSoc = this.connectionStarted.info;
 
-				if(start.x == end.x && start.y == end.y){
+				//start and end needs to have {node, socket, }
+				
+
+				var start = {nodeIndex: startSoc.nodeIndex, socketIndex: startSoc.socketIndex, socketType: startSoc.socketType};
+				var end = {nodeIndex: this.dragState.nodeIndex, socketIndex: this.dragState.socketIndex, socketType: this.dragState.socketType};
+
+				if(start.nodeIndex == end.nodeIndex && start.socketIndex == end.socketIndex){
 					console.log("same place, dont");
 				}
 				else{
-					var newConnector = connector.create(start, end, socketLoc.isReversed);
+					var newConnector = connector.create(start, end, startSoc.socketLocation.isReversed);
 					this.connectorStack.push(newConnector);
 					console.log("connectorStack", this.connectorStack);
 				}
@@ -215,8 +223,24 @@ class Board{
 
 		for(var i in this.connectorStack){
 			var obj = this.connectorStack[i].getJSON();
+			var first = this.nodeBuilder.getHitZones(this.nodeStack[obj.start.nodeIndex].getJSON());
+			var second = this.nodeBuilder.getHitZones(this.nodeStack[obj.end.nodeIndex].getJSON());
+
+			if(obj.start.socketType == 'args'){
+				var start = {x: first.args[obj.start.socketIndex].x * this.zoom, y: first.args[obj.start.socketIndex].y * this.zoom};
+			}
+			else if(obj.start.socketType == 'returns'){
+				var start = {x: first.returns[obj.start.socketIndex].x * this.zoom, y: first.returns[obj.start.socketIndex].y * this.zoom};
+			}
+
+			if(obj.end.socketType == 'args'){
+				var end = {x: second.args[obj.end.socketIndex].x * this.zoom, y: second.args[obj.end.socketIndex].y * this.zoom};
+			}
+			else if(obj.end.socketType == 'returns'){
+				var end = {x: second.returns[obj.end.socketIndex].x * this.zoom, y: second.returns[obj.end.socketIndex].y * this.zoom};
+			}
 			this.context.beginPath();
-			this.connectorBuilder.makeConnector(obj.start, obj.end, obj.isReversed);
+			this.connectorBuilder.makeConnector(start, end, obj.isReversed);
 			this.context.stroke();
 		}
 		
