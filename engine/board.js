@@ -2,6 +2,7 @@
 const path = require('path');
 const nodebuilder = require(path.join(__dirname, '/node-builder.js'));
 const connectorbuilder = require(path.join(__dirname, '/connector-builder.js'));
+const connector = require(path.join(__dirname, '/connector.js'));
 const fraction = require('fractional').Fraction;
 
 var exports = module.exports = {};
@@ -25,6 +26,10 @@ class Board{
 			isSocket: false,
 			global: true,
 			node: null
+		};
+
+		this.connectionStarted = {
+			bool: false,
 		};
 
 		this.nodeBuilder = nodebuilder.create(this.context);
@@ -81,9 +86,11 @@ class Board{
 						this.dragState.node = this.nodeStack[i];
 						this.dragState.global = false;
 						this.dragState.isSocket = true;
+						this.dragState.socketRef = this.nodeStack[i].args[loc.args[j].index];
 						this.dragState.socketLocation = {
 							x: loc.args[j].x,
-							y: loc.args[j].y
+							y: loc.args[j].y,
+							isReversed: true
 						};
 						return;
 					}
@@ -98,9 +105,11 @@ class Board{
 						this.dragState.node = this.nodeStack[i];
 						this.dragState.global = false;
 						this.dragState.isSocket = true;
+						this.dragState.socketRef = this.nodeStack[i].returns[loc.returns[j].index];
 						this.dragState.socketLocation = {
 							x: loc.returns[j].x,
-							y: loc.returns[j].y
+							y: loc.returns[j].y,
+							isReversed: false
 						};
 						return;
 					}
@@ -116,7 +125,8 @@ class Board{
 					this.dragState.isSocket = true;
 					this.dragState.socketLocation = {
 							x: loc.leftExec.x + (loc.leftExec.width/2),
-							y: loc.leftExec.y + (loc.leftExec.height/2)
+							y: loc.leftExec.y + (loc.leftExec.height/2),
+							isReversed: true
 						};
 					return;
 				}
@@ -131,7 +141,8 @@ class Board{
 					this.dragState.isSocket = true;
 					this.dragState.socketLocation = {
 							x: loc.rightExec.x + (loc.rightExec.width/2),
-							y: loc.rightExec.y + (loc.rightExec.height/2)
+							y: loc.rightExec.y + (loc.rightExec.height/2),
+							isReversed: false
 						};
 					return;
 				}
@@ -157,29 +168,55 @@ class Board{
 		if(this.dragState.clicked && !this.dragState.global && !this.dragState.isSocket){
 			this.moveNode(this.dragState.node);
 		}
+
+		//if a socket is dragged, spawn connector
 		else if(this.dragState.clicked && !this.dragState.global && this.dragState.isSocket){
 			this.context.beginPath();
-
 			var socketLoc = this.dragState.socketLocation;
+			this.connectionStarted.bool = true;
+			this.connectionStarted.loc = socketLoc;
 			var start = {x: socketLoc.x, y: socketLoc.y};
 			var end = {x: this.mouseX, y: this.mouseY};
-			this.connectorBuilder.makeConnector(start, end);
+			this.connectorBuilder.makeConnector(start, end, socketLoc.isReversed);
 			this.context.stroke();
 		}
 
-		// //render mouse dot
-		// this.context.beginPath();
-		// this.nodeBuilder.parseJSON({x: this.mouseX, y: this.mouseY, height: 1, width: 1,args:[],returns:[]});
-		// this.context.stroke();
+		//if button released on a socket, and connector was started, then attach it
+		else if(!this.dragState.clicked && !this.dragState.global && this.dragState.isSocket){
+			if(this.connectionStarted.bool == true){
+				console.log("connected!!")
+				var socketLoc = this.connectionStarted.loc;
+				var start = {x: socketLoc.x, y: socketLoc.y};
+				var end = {x: this.dragState.socketLocation.x, y: this.dragState.socketLocation.y};
+
+				if(start.x == end.x && start.y == end.y){
+					console.log("same place, dont");
+				}
+				else{
+					var newConnector = connector.create(start, end, socketLoc.isReversed);
+					this.connectorStack.push(newConnector);
+					console.log("connectorStack", this.connectorStack);
+				}
+				this.connectionStarted.bool = false;
+				this.resetDragState();
+			}
+		}
 
 		//connector test
-		if(this.nodeStack.length == 2){
+		// if(this.nodeStack.length == 2){
+		// 	this.context.beginPath();
+		// 	var first = this.nodeStack[0].getJSON();
+		// 	var second = this.nodeStack[1].getJSON();
+		// 	var start = {x: (first.x + first.width) * this.zoom, y: first.y * this.zoom};
+		// 	var end = {x: second.x * this.zoom, y: second.y * this.zoom};
+		// 	this.connectorBuilder.makeConnector(start, end);
+		// 	this.context.stroke();
+		// }
+
+		for(var i in this.connectorStack){
+			var obj = this.connectorStack[i].getJSON();
 			this.context.beginPath();
-			var first = this.nodeStack[0].getJSON();
-			var second = this.nodeStack[1].getJSON();
-			var start = {x: (first.x + first.width) * this.zoom, y: first.y * this.zoom};
-			var end = {x: second.x * this.zoom, y: second.y * this.zoom};
-			this.connectorBuilder.makeConnector(start, end);
+			this.connectorBuilder.makeConnector(obj.start, obj.end, obj.isReversed);
 			this.context.stroke();
 		}
 		
@@ -254,6 +291,7 @@ class Board{
 		this.canvas.addEventListener('mouseup', e => {
 			console.log("mouseup",e);
 			this.resetDragState();
+			this.globalOrNodeDrag();
 		});
 
 		this.canvas.addEventListener('mousedown', e => {

@@ -52,7 +52,8 @@ class nodeBuilder{
 			var objargs = {
 				x: bottomLeft.x,
 				y: bottomLeft.y - (i* 15 * this.zoom),
-				radius: 5 * this.zoom
+				radius: 5 * this.zoom,
+				index: i
 			};
 			args.push(objargs);
 		}
@@ -61,7 +62,8 @@ class nodeBuilder{
 			var objreturns = {
 				x: bottomRight.x,
 				y: bottomRight.y - (i* 15 * this.zoom),
-				radius: 5 * this.zoom
+				radius: 5 * this.zoom,
+				index: i
 			};
 			returns.push(objreturns);
 		}

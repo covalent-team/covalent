@@ -13,17 +13,28 @@ class connectorBuilder{
 	    var cp1y = start.y;
 	    var cp2x = end.x - midpointX;
 	    var cp2y = end.y;
+
 	    
-	    return {
-	        cp1: {x: cp1x, y: cp1y},
-	        cp2: {x: cp2x, y: cp2y}
-	    };
+    	var result = {
+    		cp1: {x: cp1x, y: cp1y},
+        	cp2: {x: cp2x, y: cp2y}
+    	};
+
+	    
+	    return result;
 	}
 
 	makeConnector(start, end, isReversed){
-		this.context.moveTo(start.x,start.y);
-		var curve = this.bezierCurveCalc(start, end, isReversed);
-		this.context.bezierCurveTo(curve.cp1.x, curve.cp1.y, curve.cp2.x, curve.cp2.y, end.x, end.y);
+		if(!isReversed){
+			this.context.moveTo(start.x,start.y);
+			var curve = this.bezierCurveCalc(start, end);
+			this.context.bezierCurveTo(curve.cp1.x, curve.cp1.y, curve.cp2.x, curve.cp2.y, end.x, end.y);
+		}else{
+			this.context.moveTo(end.x,end.y);
+			var curve = this.bezierCurveCalc(end, start);
+			this.context.bezierCurveTo(curve.cp1.x, curve.cp1.y, curve.cp2.x, curve.cp2.y, start.x, start.y);
+		}
+		
 	}
 }
 
