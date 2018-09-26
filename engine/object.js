@@ -6,6 +6,8 @@ class Object{
 		this.y = y;
 		this.height = h;
 		this.width = w;
+		this.args = [false,false];
+		this.returns = [false,false];
 	}
 
 	draw(context){
@@ -25,14 +27,27 @@ class Object{
 		};
 	}
 
+	addConnector(type, index){
+		if(type == 'args'){
+			this.args[index] = true;
+		}
+		else if(type == 'returns'){
+			this.returns[index] = true;
+		}
+	}
+
+	checkArgsConnector(index){
+		return this.args[index];
+	}
+
 	getJSON(){
 		return {
 			x: this.x,
 			y: this.y,
 			height: this.height,
 			width: this.width,
-			args: [1,2],
-			returns: [1],
+			args: this.args,
+			returns: this.returns,
 			isEvent: false,
 			isReturn: false,
 			isPure: false

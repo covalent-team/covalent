@@ -194,8 +194,17 @@ class Board{
 				//start and end needs to have {node, socket, }
 				
 
-				var start = {nodeIndex: startSoc.nodeIndex, socketIndex: startSoc.socketIndex, socketType: startSoc.socketType};
-				var end = {nodeIndex: this.dragState.nodeIndex, socketIndex: this.dragState.socketIndex, socketType: this.dragState.socketType};
+				var start = {
+					nodeIndex: startSoc.nodeIndex, 
+					socketIndex: startSoc.socketIndex, 
+					socketType: startSoc.socketType
+				};
+
+				var end = {
+					nodeIndex: this.dragState.nodeIndex, 
+					socketIndex: this.dragState.socketIndex, 
+					socketType: this.dragState.socketType
+				};
 
 				//validate if can connect to this socket
 				if(start.nodeIndex == end.nodeIndex && start.socketIndex == end.socketIndex){
@@ -210,11 +219,25 @@ class Board{
 				else if(start.socketType == 'rightExec' && end.socketType != 'leftExec'){
 					console.log("execs must be connected to eachother");
 				}
+				else if(start.socketType == 'returns' && end.socketType != 'args'){
+					console.log("returns must only connect to args");
+				}
+				else if(start.socketType == 'args' && end.socketType != 'returns'){
+					console.log("returns must only connect to args");
+				}
 
-
+				//validate args only has one connector going to it
+				else if(start.socketType == 'args' && this.nodeStack[start.nodeIndex].checkArgsConnector(start.socketIndex)){
+					console.log("already a connector attached to it");
+				}
+				else if(end.socketType == 'args' && this.nodeStack[end.nodeIndex].checkArgsConnector(end.socketIndex)){
+					console.log("already a connector attached to it");
+				}
 
 				//if validated, connect!
 				else{
+					this.nodeStack[start.nodeIndex].addConnector(start.socketType, start.socketIndex);
+					this.nodeStack[end.nodeIndex].addConnector(end.socketType, end.socketIndex);
 					var newConnector = connector.create(start, end, startSoc.socketLocation.isReversed);
 					this.connectorStack.push(newConnector);
 					console.log("connectorStack", this.connectorStack);
