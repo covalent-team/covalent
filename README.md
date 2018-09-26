@@ -1,6 +1,7 @@
 # Covalent
 
-Covalent is a drag-and-drop visual scripting language that will compile to javascript
+A drag-and-drop visual scripting language that will compile to JavaScript, built using Electron and ReactJS. 
+Modelled after Unreal Engine Blueprint. 
 
 ## To Use
 
