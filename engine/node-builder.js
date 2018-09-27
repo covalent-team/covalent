@@ -25,25 +25,27 @@ class nodeBuilder{
 			y: json.y + json.height
 		};
 
-		var leftExecSocket, rightExecSocket;
+		var leftExecs = [], rightExecs = [];
 
 		if(!json.isPure){
-			if(!json.isEvent){
-				leftExecSocket = {
+			for(i = 0; i < json.leftExecs.length; i++){
+				var leftExecSocket = {
 					x: json.x - (10 * this.zoom),
-					y: json.y, 
+					y: json.y + (i* 15 * this.zoom), 
 					width: 10 * this.zoom, 
 					height: 10 * this.zoom
 				};
+				leftExecs.push(leftExecSocket);
 			}
 
-			if(!json.isReturn){
-				rightExecSocket = {
+			for(i = 0; i < json.rightExecs.length; i++){
+				var rightExecSocket = {
 					x: json.x + json.width,
-					y: json.y, 
+					y: json.y + (i* 15 * this.zoom), 
 					width: 10 * this.zoom, 
 					height: 10 * this.zoom
 				};
+				rightExecs.push(rightExecSocket);
 			}
 		}
 		var args = []; var returns = [];
@@ -75,8 +77,8 @@ class nodeBuilder{
 			y: json.y,
 			width: json.width,
 			height: json.height,
-			leftExec: leftExecSocket, 
-			rightExec: rightExecSocket,
+			leftExec: leftExecs, 
+			rightExec: rightExecs,
 			args: args,
 			returns: returns
 		};
@@ -123,16 +125,16 @@ class nodeBuilder{
 		};
 
 		if(!json.isPure){
-			if(!json.isEvent){
+			for(i = 0; i < json.leftExecs.length; i++){
 				this.context.beginPath();
-				this.context.rect(json.x - (10 * this.zoom), json.y, 10 * this.zoom, 10 * this.zoom);
+				this.context.rect(json.x - (10 * this.zoom), json.y + (i* 15 * this.zoom), 10 * this.zoom, 10 * this.zoom);
 				this.fillColor();
 				this.context.stroke();
 			}
 
-			if(!json.isReturn){
+			for(i = 0; i < json.rightExecs.length; i++){
 				this.context.beginPath();
-				this.context.rect(json.x + json.width, json.y, 10 * this.zoom, 10 * this.zoom);
+				this.context.rect(json.x + json.width, json.y + (i* 15 * this.zoom), 10 * this.zoom, 10 * this.zoom);
 				this.fillColor();
 				this.context.stroke();
 			}

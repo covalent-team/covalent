@@ -1,7 +1,6 @@
+//connector object
+
 var exports = module.exports = {};
-
-
-
  class Connector{
 	constructor(start, end, reversed){
 		this.start = start;

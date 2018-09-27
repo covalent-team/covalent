@@ -1,6 +1,7 @@
 //engine core
 const path = require('path');
 const nodebuilder = require(path.join(__dirname, '/node-builder.js'));
+const node = require(path.join(__dirname, '/object.js'));
 const connectorbuilder = require(path.join(__dirname, '/connector-builder.js'));
 const connector = require(path.join(__dirname, '/connector.js'));
 const fraction = require('fractional').Fraction;
@@ -32,6 +33,8 @@ class Board{
 			bool: false,
 		};
 
+		this.generateExample();
+
 		this.nodeBuilder = nodebuilder.create(this.context);
 		this.connectorBuilder = connectorbuilder.create(this.context);
 
@@ -41,11 +44,36 @@ class Board{
   		this.tick();
 	}
 
+	generateExample(){
+		var o1 = {
+			x: 1,
+			y: 1,
+			width: 60,
+			height: 60,
+			args: 2,
+			returns: 2,
+			leftExecs: 2,
+			rightExecs: 2,
+			isPure: false
+		};
+
+		var obj1 = node.create(o1);
+		this.addToStack(obj1);
+
+		o1.x = 100;
+		o1.y = 100;
+
+		var obj2 = node.create(o1);
+		this.addToStack(obj2);
+	}
+
 	getContext(){
 		return this.context;
 	}
 
 	addToStack(item){
+		var index = this.nodeStack.length;
+		item.setNodeIndex(index);
 		this.nodeStack.push(item);
 	}
 
@@ -119,36 +147,42 @@ class Board{
 			}
 
 			//if leftExec socket collision is true
-			if(this.mouseX >= loc.leftExec.x && this.mouseX <= loc.leftExec.x + loc.leftExec.width){
-				if(this.mouseY >= loc.leftExec.y && this.mouseY <= loc.leftExec.y + loc.leftExec.height){
-					console.log("inside leftExec");
-					this.dragState.nodeIndex = i;
-					this.dragState.socketType = 'leftExec';
-					this.dragState.global = false;
-					this.dragState.isSocket = true;
-					this.dragState.socketLocation = {
-							x: loc.leftExec.x + (loc.leftExec.width/2),
-							y: loc.leftExec.y + (loc.leftExec.height/2),
-							isReversed: true
-						};
-					return;
+			for(j in loc.leftExec){
+				if(this.mouseX >= loc.leftExec[j].x && this.mouseX <= loc.leftExec[j].x + loc.leftExec[j].width){
+					if(this.mouseY >= loc.leftExec[j].y && this.mouseY <= loc.leftExec[j].y + loc.leftExec[j].height){
+						console.log("inside leftExec");
+						this.dragState.nodeIndex = i;
+						this.dragState.socketType = 'leftExec';
+						this.dragState.global = false;
+						this.dragState.isSocket = true;
+						this.dragState.socketIndex = j;
+						this.dragState.socketLocation = {
+								x: loc.leftExec[j].x + (loc.leftExec[j].width/2),
+								y: loc.leftExec[j].y + (loc.leftExec[j].height/2),
+								isReversed: true
+							};
+						return;
+					}
 				}
 			}
 
 			//if rightExec socket collision is true
-			if(this.mouseX >= loc.rightExec.x && this.mouseX <= loc.rightExec.x + loc.rightExec.width){
-				if(this.mouseY >= loc.rightExec.y && this.mouseY <= loc.rightExec.y + loc.rightExec.height){
-					console.log("inside rightExec");
-					this.dragState.nodeIndex = i;
-					this.dragState.socketType = 'rightExec';
-					this.dragState.global = false;
-					this.dragState.isSocket = true;
-					this.dragState.socketLocation = {
-							x: loc.rightExec.x + (loc.rightExec.width/2),
-							y: loc.rightExec.y + (loc.rightExec.height/2),
-							isReversed: false
-						};
-					return;
+			for(j in loc.rightExec){
+				if(this.mouseX >= loc.rightExec[j].x && this.mouseX <= loc.rightExec[j].x + loc.rightExec[j].width){
+					if(this.mouseY >= loc.rightExec[j].y && this.mouseY <= loc.rightExec[j].y + loc.rightExec[j].height){
+						console.log("inside rightExec");
+						this.dragState.nodeIndex = i;
+						this.dragState.socketType = 'rightExec';
+						this.dragState.global = false;
+						this.dragState.isSocket = true;
+						this.dragState.socketIndex = j;
+						this.dragState.socketLocation = {
+								x: loc.rightExec[j].x + (loc.rightExec[j].width/2),
+								y: loc.rightExec[j].y + (loc.rightExec[j].height/2),
+								isReversed: false
+							};
+						return;
+					}
 				}
 			}
 
@@ -169,7 +203,7 @@ class Board{
 
 	render() {
 		//if dragged body of node (not sockets), then drag the node around
-		if(this.dragState.clicked && !this.dragState.global && !this.dragState.isSocket){
+		if(this.dragState.clicked && !thiqs.dragState.global && !this.dragState.isSocket){
 			this.moveNode(this.dragState.node);
 		}
 
@@ -226,13 +260,13 @@ class Board{
 					console.log("returns must only connect to args");
 				}
 
-				//validate args only has one connector going to it
-				else if(start.socketType == 'args' && this.nodeStack[start.nodeIndex].checkArgsConnector(start.socketIndex)){
-					console.log("already a connector attached to it");
-				}
-				else if(end.socketType == 'args' && this.nodeStack[end.nodeIndex].checkArgsConnector(end.socketIndex)){
-					console.log("already a connector attached to it");
-				}
+				// //validate args only has one connector going to it
+				// else if(start.socketType == 'args' && this.nodeStack[start.nodeIndex].checkArgsConnector(start.socketIndex)){
+				// 	console.log("already a connector attached to it");
+				// }
+				// else if(end.socketType == 'args' && this.nodeStack[end.nodeIndex].checkArgsConnector(end.socketIndex)){
+				// 	console.log("already a connector attached to it");
+				// }
 
 				//if validated, connect!
 				else{
@@ -247,24 +281,12 @@ class Board{
 			}
 		}
 
-		//connector test
-		// if(this.nodeStack.length == 2){
-		// 	this.context.beginPath();
-		// 	var first = this.nodeStack[0].getJSON();
-		// 	var second = this.nodeStack[1].getJSON();
-		// 	var start = {x: (first.x + first.width) * this.zoom, y: first.y * this.zoom};
-		// 	var end = {x: second.x * this.zoom, y: second.y * this.zoom};
-		// 	this.connectorBuilder.makeConnector(start, end);
-		// 	this.context.stroke();
-		// }
-
 		for(var i in this.connectorStack){
 			var obj = this.connectorStack[i].getJSON();
 			var first = this.nodeBuilder.getHitZones(this.nodeStack[obj.start.nodeIndex].getJSON());
 			var second = this.nodeBuilder.getHitZones(this.nodeStack[obj.end.nodeIndex].getJSON());
 
-			console.log("first",first);
-			console.log("second",second);
+
 			//args or returns
 			if(obj.start.socketType == 'args'){
 				var start = {x: first.args[obj.start.socketIndex].x, y: first.args[obj.start.socketIndex].y};
@@ -279,20 +301,18 @@ class Board{
 				var end = {x: second.returns[obj.end.socketIndex].x, y: second.returns[obj.end.socketIndex].y};
 			}
 
-			//leftExecs
+			//left and right exec
 			if(obj.start.socketType == 'leftExec'){
-				var start = {x: first.leftExec.x + (first.leftExec.width/2), y: first.leftExec.y + (first.leftExec.height/2)};
+				var start = {x: first.leftExec[obj.start.socketIndex].x + (first.leftExec[obj.start.socketIndex].width/2), y: first.leftExec[obj.start.socketIndex].y + (first.leftExec[obj.start.socketIndex].height/2)};
 			}
-			else if(obj.end.socketType == 'leftExec'){
-				var end = {x: second.leftExec.x + (second.leftExec.width/2), y: second.leftExec.y + (second.leftExec.height/2)};
+			else if(obj.start.socketType == 'rightExec'){
+				var start = {x: first.rightExec[obj.start.socketIndex].x + (first.rightExec[obj.start.socketIndex].width/2), y: first.rightExec[obj.start.socketIndex].y + (first.rightExec[obj.start.socketIndex].height/2)};
 			}
-
-			//rightExec
-			if(obj.start.socketType == 'rightExec'){
-				var start = {x: first.rightExec.x + (first.rightExec.width/2), y: first.rightExec.y + (first.rightExec.height/2)};
+			if(obj.end.socketType == 'leftExec'){
+				var end = {x: second.leftExec[obj.end.socketIndex].x + (second.leftExec[obj.end.socketIndex].width/2), y: second.leftExec[obj.end.socketIndex].y + (second.leftExec[obj.end.socketIndex].height/2)};
 			}
 			else if(obj.end.socketType == 'rightExec'){
-				var end = {x: second.rightExec.x + (second.rightExec.width/2), y: second.rightExec.y + (second.rightExec.height/2)};
+				var end = {x: second.rightExec[obj.end.socketIndex].x + (second.rightExec[obj.end.socketIndex].width/2), y: second.rightExec[obj.end.socketIndex].y + (second.rightExec[obj.end.socketIndex].height/2)};
 			}
 
 			this.context.beginPath();
