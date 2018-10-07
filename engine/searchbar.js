@@ -14,10 +14,29 @@ class SearchBar{
 
 		// Filter array when user search for term, so the search results will change and not all menu components will be rendered 
 		this.filterArray = new Set(); 
+		this.isCreated = false;
 
 		// Position x and y where the menu will be rendered 
 		this.currentMenuPositionX = 0; 
 		this.currentMenuPositionY = 0; 
+
+		// The white box to contain the search bar and results. 
+		this.menudiv.className = "canvasMenu";
+		this.menudiv.style.position = "absolute"; 
+		
+
+		// Build the searchbar inside the menu. 
+		this.searchbar.className = "canvasMenuSearchBar"; 
+		this.searchbar.placeholder = "Search"; 
+		
+
+		// Build the search bar results beneath the search bar. 
+		this.searchResultsDiv = document.createElement("div");
+		this.searchResultsDiv.className = "canvasMenuSearchResults"; 
+		this.searchResultsDiv.id = 'searchResultsDivID'; 
+		// this.renderSearchComponents(this.searchResultsDiv, this.menuComponents); 
+
+
 }
 
 
@@ -31,59 +50,52 @@ class SearchBar{
 	// State denotes if menu is already open or currently being search 
 	// 1. Initial: user first create a menu 
 	// 2. Searching: user already create menu, but currently searching so we don't need to clear the menu 
-	renderMenu(state){
+	renderMenu(){
+		this.menudiv.style.top = this.currentMenuPositionY + "px"; 
+		this.menudiv.style.left = this.currentMenuPositionX + "px"; 
 
-			// If user first create the menu by right click mouse. 
-			if (state == 'initial'){
-					this.clearMenu();  
-
-					// The white box to contain the search bar and results. 
-					this.menudiv.className = "canvasMenu";
-					this.menudiv.style.position = "absolute"; 
-					this.menudiv.style.top = this.currentMenuPositionY + "px"; 
-					this.menudiv.style.left = this.currentMenuPositionX + "px"; 
-					document.body.appendChild(this.menudiv); 
-
-					// Build the searchbar inside the menu. 
-					this.searchbar.className = "canvasMenuSearchBar"; 
-					this.searchbar.placeholder = "Search"; 
-					this.menudiv.appendChild(this.searchbar);
-
-					// Build the search bar results beneath the search bar. 
-					var searchResultsDiv = document.createElement("div");
-					searchResultsDiv.className = "canvasMenuSearchResults"; 
-					searchResultsDiv.id = 'searchResultsDivID'; 
-					this.renderSearchComponents(searchResultsDiv, this.menuComponents); 
-					this.menudiv.appendChild(searchResultsDiv);  
+			// If array hasn't been created 
+			if(!this.isCreated){
+				document.body.appendChild(this.menudiv); 
+				this.menudiv.appendChild(this.searchbar);
+				this.filterArray = this.menuComponents;
+				this.searchResultsDiv = this.renderSearchComponents();
+				this.menudiv.appendChild(this.searchResultsDiv); 
+				this.isCreated = true;
 			}
-
-
-			// If user is currently searching, re-rendering the menu 
 			else{
-					document.getElementById("searchResultsDivID").outerHTML = ""; 
-					var searchResultsDiv = document.createElement("div");
-					searchResultsDiv.className = "canvasMenuSearchResults"; 
-					searchResultsDiv.id = 'searchResultsDivID';  
-					this.renderSearchComponents(searchResultsDiv, Array.from(this.filterArray)); 
-					this.menudiv.appendChild(searchResultsDiv);  
+				//document.body.replaceChild(this.menudiv, this.menudiv); 
+				//this.menudiv.replaceChild(this.searchbar, this.searchbar);
+				var newfuckingthing = this.renderSearchComponents();
+				console.log("new fucking thing!!!", newfuckingthing); 
+				this.menudiv.replaceChild(newfuckingthing, this.searchResultsDiv);
+				this.searchResultsDiv = newfuckingthing; 
 			}
-
 	}
+
 
 	// Return array of p tags which are the result 
 	// searchresults (type: div): the div which contains the search results components
 	// componentArr (type: arr): the list of search terms that will be displayed on the search results 
-	renderSearchComponents(searchResultsDiv, componentArr){
-			console.log("Backspace should also call this!!!!"); 
+	renderSearchComponents(){
+		var newSearchResultsDiv = document.createElement("div");
+		newSearchResultsDiv.className = "canvasMenuSearchResults"; 
+		newSearchResultsDiv.id = 'searchResultsDivID'; 
+
+		var componentArr = Array.from(this.filterArray);
 			if (componentArr.length == 0)
-					componentArr = this.menuComponents; 
+					componentArr = this.menuComponents;
+			console.log("Component arr", componentArr); 
 			for (var i in componentArr){
 					var componentStr = document.createTextNode(componentArr[i]);  
 					var componentP = document.createElement("p"); 
 					componentP.appendChild(componentStr); 
-					searchResultsDiv.appendChild(componentP); 
+					componentP.onclick = function(){ this.clickedResultFunc(componentStr); };
+					newSearchResultsDiv.appendChild(componentP); 
 			}
-			console.log("Search results div", searchResultsDiv); 
+			//this.searchResultsDiv = newSearchResultsDiv;
+			console.log("Search results div", newSearchResultsDiv); 
+			return newSearchResultsDiv;
 	}
 
 
@@ -91,13 +103,17 @@ class SearchBar{
 	/* ---------- ALL CLEARING RENDERING FUNCTION WILL GOES DOWN HERE ----------- */ 
 	// Erase all previously built menu. 
 	clearMenu(){
-			console.log("Clear menu is called!!!!"); 
-			try {
-					while (this.canvasMenuClass.length > 0) 
-							this.canvasMenuClass[0].remove(); 
-			} catch(err){
-					console.error("Error", err); 
-			}
+			// try {
+			// 	while (this.canvasMenuClass.length > 0) 
+			// 			this.canvasMenuClass[0].remove(); 
+			// } catch(err){
+			// 		console.error("Error", err); 
+			// }
+			this.searchbar.parentNode.removeChild(this.searchbar);  
+			this.searchResultsDiv.parentNode.removeChild(this.searchResultsDiv);  
+			this.menudiv.parentNode.removeChild(this.menudiv); 
+			
+			this.isCreated = false; 
 	}
 
 
@@ -106,7 +122,6 @@ class SearchBar{
 	// var search = /fun/g
 	filterSearch(){
 			var word = this.searchbar.value; 
-			console.log("Word", word); 
 			this.filterArray = new Set();  
 			if (word){
 					for (var i in this.menuComponents){
@@ -119,7 +134,15 @@ class SearchBar{
 			} else{
 					this.filterArray = new Set(); 
 			}
-			this.renderMenu('searching'); 
+			//edit the list
+			this.renderMenu(); 
+	}
+
+
+
+	// This function will be called when the p tag is being clicked on 
+	clickedResultFunc(word){
+		console.log("Word", word); 
 	}
 }
 

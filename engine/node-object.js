@@ -3,7 +3,7 @@ const path = require('path');
 const socket = require(path.join(__dirname, '/socket.js'));
 
 var exports = module.exports = {};
-class Object{
+class NodeObject{
 	constructor(nodeObject){
 		// x: 1,
 		// 	y: 1,
@@ -122,5 +122,5 @@ class Object{
 }
 
 exports.create = function(nodeObject){
-	return new Object(nodeObject);
+	return new NodeObject(nodeObject);
 }

@@ -1,7 +1,7 @@
 //engine core
 const path = require('path');
 const nodebuilder = require(path.join(__dirname, '/node-builder.js'));
-const node = require(path.join(__dirname, '/object.js'));
+const node = require(path.join(__dirname, '/node-object.js'));
 const connectorbuilder = require(path.join(__dirname, '/connector-builder.js'));
 const connector = require(path.join(__dirname, '/connector.js'));
 const fraction = require('fractional').Fraction;
@@ -237,8 +237,6 @@ class Board{
 				var startSoc = this.connectionStarted.info;
 
 				//start and end needs to have {node, socket, }
-				
-
 				var start = {
 					nodeIndex: startSoc.nodeIndex, 
 					socketIndex: startSoc.socketIndex, 
@@ -271,13 +269,6 @@ class Board{
 					console.log("returns must only connect to args");
 				}
 
-				// //validate args only has one connector going to it
-				// else if(start.socketType == 'args' && this.nodeStack[start.nodeIndex].checkArgsConnector(start.socketIndex)){
-				// 	console.log("already a connector attached to it");
-				// }
-				// else if(end.socketType == 'args' && this.nodeStack[end.nodeIndex].checkArgsConnector(end.socketIndex)){
-				// 	console.log("already a connector attached to it");
-				// }
 
 				//if validated, connect!
 				else{
@@ -333,8 +324,6 @@ class Board{
 		
 
 		for(var i in this.nodeStack){
-			
-
 			var obj = this.nodeStack[i].getJSON();
 
 			//if clicked on global stuff
@@ -414,14 +403,14 @@ class Board{
 
 			// If user left click, erase menu else create menu 
 			if (e.button === 0){
-				this.clearMenu(); 
+				this.searchBar.clearMenu(); 
 			}
 			if (e.button === 2 && this.dragState.global == true){
 
 			
 
 				this.searchBar.setLocationMenu(e.clientX, e.clientY); 
-				this.searchBar.renderMenu('initial'); 
+				this.searchBar.renderMenu();//'initial'); 
 			
 				this.resetDragState(); 
 				return; 
