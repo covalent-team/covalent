@@ -32,6 +32,13 @@ button {
 	--black-menu-width: 70px; 
 	--red-menu-width: 200px; 
 	--menu-box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.50); 
+	--canvas-menu-height: 200px; 
+	--canvas-menu-search-height: 35px; 
+}
+
+::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+	color: #E5E7E9;
+	font-family: Lato;
 }
 
 /* ------------------ MENU BARS ------------------- */ 
@@ -128,4 +135,41 @@ canvas{
 }
 
 
+
+.canvasMenu{
+	background: white; 
+	width:  300px;
+	height: var(--canvas-menu-height);
+	color: white; 
+	border-radius: 5px !important; 
+	box-shadow: 0 3px 6px rgba(0,0,0,0.05), 0 3px 6px rgba(0,0,0,0.10); 
+}
+
+
+.canvasMenuSearchBar{
+	height: var(--canvas-menu-search-height);
+	width: 280px;
+	outline: none; 
+	border: none; 
+	border-bottom: 1px #E5E7E9 solid; 
+	padding-left: 10px; 
+	padding-right: 10px; 
+	color: #979A9A; 
+}
+
+
+
+.canvasMenuSearchResults{
+	overflow: scroll;
+	height: calc( var(--canvas-menu-height) - var(--canvas-menu-search-height) - 10px) ; 
+}
+.canvasMenuSearchResults p{
+	color: #BDC3C7; 
+	font-family: 'Lato';
+	font-size: 10px !important;
+	margin-bottom: 0px; 
+	margin-top: 5px; 
+	padding-left: 10px; 
+
+}
 

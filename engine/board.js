@@ -7,21 +7,25 @@ const connector = require(path.join(__dirname, '/connector.js'));
 const fraction = require('fractional').Fraction;
 
 var exports = module.exports = {};
+
+// This function create the board to draw the reactangles on 
 class Board{
 	constructor(){
 	
+		// -------- Canvas components --------  
 		this.canvas = document.createElement('canvas');
 		document.body.appendChild(this.canvas);
 		this.context = this.canvas.getContext('2d');
 
+		// -------- Mouse components ----------  
 		this.mouseX = 1;
 		this.mouseY = 1;
 		this.nodeStack = [];
 		this.connectorStack = [];
 
+		// -------- Zoom and drag state components --------  
 		this.zoom = 1;
 		this.inverseZoom = 1;
-
 		this.dragState = {
 			clicked: false,
 			isSocket: false,
@@ -29,17 +33,35 @@ class Board{
 			node: null
 		};
 
+
+		// -------- Node and connectors variables --------  
+
 		this.connectionStarted = {
 			bool: false,
 		};
 
 		this.generateExample();
 
+
 		this.nodeBuilder = nodebuilder.create(this.context);
 		this.connectorBuilder = connectorbuilder.create(this.context);
 
+		// -------- Rendered menu variables --------- 
+		this.canvasMenuClass = document.getElementsByClassName('canvasMenu');  
+		this.canvasMenuSearchResultClass = document.getElementsByClassName('canvasMenuSearchResults'); 
+
+		this.menudiv = document.createElement("div");   
+		this.menuComponents = ["function", "loop", "if", "variable", "boolean", "number", "string", "bytes", "object", "null"]; 
+		this.searchbar = document.createElement("input");   
+		// Filter array when user search for term, so the search results will change and not all menu components will be rendered 
+		this.filterArray = new Set(); 
+		// Position x and y where the menu will be rendered 
+		this.currentMenuPositionX = 0; 
+		this.currentMenuPositionY = 0; 
+
+		// Set canvas width and height. 
 		this.canvas.width  = document.body.clientWidth;
-  		this.canvas.height = document.documentElement.scrollHeight;//1.618;
+  		this.canvas.height = document.documentElement.scrollHeight; 
   		this.initEventListeners();
   		this.tick();
 	}
@@ -188,7 +210,6 @@ class Board{
 
 			if(this.mouseX >= loc.x && this.mouseX <= loc.x + loc.width){
 				if(this.mouseY >= loc.y && this.mouseY <= loc.y + loc.height){
-					console.log("inside!");
 					this.dragState.node = this.nodeStack[i];
 					this.dragState.global = false;
 					return;
@@ -337,15 +358,13 @@ class Board{
 	}
 
 	clear() {
-		//console.log("clear");
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 	}
 
-
+	// Zooming functions 
 	mouseWheelZoom(e){
 		var value;
 		if(e.deltaY > 0){
-			//console.log("zoom out");
 			if(this.zoom > 0.5){
 				if(this.zoom >= 0){
 					this.zoom -= 0.10;
@@ -354,7 +373,6 @@ class Board{
 				}
 			}
 		}else if(e.deltaY < 0){
-			//console.log("zoom in");
 			if(this.zoom < 2){
 				if(this.zoom <= 0){
 					this.zoom += 0.05;
@@ -364,7 +382,6 @@ class Board{
 			}
 		}
 		this.zoom = Math.round(this.zoom * 100) / 100;
-		console.log("this.zoom",this.zoom);
 		this.inverseZoom = this.getInverse(this.zoom);
 		this.render();
 	}
@@ -376,12 +393,105 @@ class Board{
 			isSocket: false,
 			node: null
 		};
+		
 	}
 
-	//event listeners
+
+	// Draw menu at x and y position where user click on screen  
+	// State denotes if menu is already open or currently being search 
+		// 1. Initial: user first create a menu 
+		// 2. Searching: user already create menu, but currently searching so we don't need to clear the menu 
+	renderMenu(state){
+
+		// If user first create the menu by right click mouse. 
+		if (state == 'initial'){
+			this.clearMenu();  
+
+			// The white box to contain the search bar and results. 
+			this.menudiv.className = "canvasMenu";
+			this.menudiv.style.position = "absolute"; 
+			this.menudiv.style.top = this.currentMenuPositionY + "px"; 
+			this.menudiv.style.left = this.currentMenuPositionX + "px"; 
+			document.body.appendChild(this.menudiv); 
+
+			// Build the searchbar inside the menu. 
+			this.searchbar.className = "canvasMenuSearchBar"; 
+			this.searchbar.placeholder = "Search"; 
+			this.menudiv.appendChild(this.searchbar);
+
+			// Build the search bar results beneath the search bar. 
+			var searchResultsDiv = document.createElement("div");
+			searchResultsDiv.className = "canvasMenuSearchResults"; 
+			searchResultsDiv.id = 'searchResultsDivID'; 
+			this.renderSearchComponents(searchResultsDiv, this.menuComponents); 
+			this.menudiv.appendChild(searchResultsDiv);  
+		}
+
+
+		// If user is currently searching, re-rendering the menu 
+		else{
+			document.getElementById("searchResultsDivID").outerHTML = ""; 
+			var searchResultsDiv = document.createElement("div");
+			searchResultsDiv.className = "canvasMenuSearchResults"; 
+			searchResultsDiv.id = 'searchResultsDivID';  
+			this.renderSearchComponents(searchResultsDiv, Array.from(this.filterArray)); 
+			this.menudiv.appendChild(searchResultsDiv);  
+		}
+
+	}
+
+	// Return array of p tags which are the result 
+	// searchresults (type: div): the div which contains the search results components
+	// componentArr (type: arr): the list of search terms that will be displayed on the search results 
+	renderSearchComponents(searchResultsDiv, componentArr){
+		console.log("Backspace should also call this!!!!"); 
+		if (componentArr.length == 0)
+			componentArr = this.menuComponents; 
+		for (var i in componentArr){
+			var componentStr = document.createTextNode(componentArr[i]);  
+			var componentP = document.createElement("p"); 
+			componentP.appendChild(componentStr); 
+			searchResultsDiv.appendChild(componentP); 
+		}
+		console.log("Search results div", searchResultsDiv); 
+	}
+
+
+
+/* ---------- ALL CLEARING RENDERING FUNCTION WILL GOES DOWN HERE ----------- */ 
+	// Erase all previously built menu. 
+	clearMenu(){
+		try {
+			while (this.canvasMenuClass.length > 0) 
+				this.canvasMenuClass[0].remove(); 
+		} catch(err){
+			console.error("Error", err); 
+		}
+	}
+
+
+
+	// This filter the word user is currently searching. 
+	filterSearch(word){
+		let set = new Set(); 
+		if (word){
+			for (var i in this.menuComponents){
+				var component = this.menuComponents[i]; 
+				var inComponent = component.includes(word); 
+				if (inComponent == true){
+					this.filterArray.add(component); 
+				}	
+			}
+		} else{
+			this.filterArray = new Set(); 
+		}
+		this.renderMenu('searching'); 
+		console.log("Filter array", this.filterArray)
+	}
+
+	// Event listeners
 	initEventListeners() {
 		this.canvas.addEventListener('mousemove', e => {
-			//console.log("e",e);
 			this.mouseX = e.layerX;  //numbers are static based on side UI
 			this.mouseY = e.layerY;
 			this.diffMouse = {x: e.movementX, y: e.movementY};
@@ -389,16 +499,31 @@ class Board{
 			//this.globalOrNodeDrag();
 		});
 
+
+		// When user release the mouse 
 		this.canvas.addEventListener('mouseup', e => {
-			console.log("mouseup",e);
 			this.resetDragState();
 			this.globalOrNodeDrag();
+
 		});
 
+
+		// When user press down the mouse 
 		this.canvas.addEventListener('mousedown', e => {
-			console.log("mousedown",e);
-			this.dragState.clicked = true;
 			this.globalOrNodeDrag();
+
+			// If user left click, erase menu else create menu 
+			if (e.button === 0){
+				this.clearMenu(); 
+			}
+			if (e.button === 2 && this.dragState.global == true){
+				this.currentMenuPositionX = e.clientX; 
+				this.currentMenuPositionY = e.clientY; 
+				this.renderMenu('initial'); 
+				this.resetDragState(); 
+				return; 
+			}
+			this.dragState.clicked = true;
 		});
 
 		this.canvas.addEventListener('wheel', e => {
@@ -407,8 +532,10 @@ class Board{
 			this.tick();
 		});
 
-		document.addEventListener('keyup', e => {
 
+		// When user removes their hand from the keyboard 
+		document.addEventListener('keyup', e => {
+			this.filterSearch(this.searchbar.value);   
 		});
 
 		document.addEventListener('keydown', e => {
