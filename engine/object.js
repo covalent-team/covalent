@@ -36,6 +36,7 @@ class Object{
 			};
 		}
 
+		// This function adds sockets and return a
 		for(var i = 0; i < socketNums.length; i++){  //hardcoded onlyOneConnector
 			for(var j = 0; j < socketNums[i]; j++){
 				switch(i){
