@@ -41,8 +41,6 @@ class RedMenu extends React.Component{
 		});
 	}
 
-
-
   // Handle workspace creation when user click add file button 
 	handleChange(selectorFiles){
 		var path = selectorFiles[0].path; 
@@ -111,7 +109,7 @@ class RedMenu extends React.Component{
 		}); 
 	}
 
-	/* Learn how to build 
+	/* This will build the interface of the tree 
 	 	@return [true if it's a directory, false otherwise]
 	*/ 
 	buildTree(){
@@ -160,13 +158,7 @@ class RedMenu extends React.Component{
 
   // Return a list of files if user had added workspace 
 	render(){
-
-
-		
-
-
 		if (this.state.stateTree.length > 0){
-			console.log("statetree", this.state.stateTree);  
 			return (
 				<div>
 					<h4>Workspace</h4>
