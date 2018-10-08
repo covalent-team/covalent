@@ -11,6 +11,27 @@ This is a brand new open source project, and there is still a long way to go, bu
 
 Join our Discord! - https://discord.gg/VVBMWGG
 
+## File Structure 
+This is the folder structure of the project: 
+
+    covalent/
+    ├── engine/                       
+    ├── menubar/
+    ├── index.html 
+    ├── main.js 
+    ├── renderer.js  
+    └── gulpfile.js    
+    
+  1. **Engine**: The engine will contains all the necessary components to create things on the canvas 
+  2. **Menubar**: The menubar contains the tree structure to load menu files 
+  3. **index.html**: will put together everything on the DOM interface (which is the black menu bar, the red menu bar), load the renderer.js, React and Babel 
+  4. **main.js**: This is the modules to control application life and create native browser window (specify width, height, and create window of the application over here)
+  5. **renderer.js**: this is the JS file that will first call the master parent class (listener.js), which in turn will create the canvas to draw the nodes on 
+  6. **gulpfile.js**: Electron does not have built in live reload, so this project is utilizing gulp to re-render the browser everytime there is a change on the JavaScript file 
+
+
+     
+
 ## Architecture of the Class 
 There are currently 8 classes containing within this file, within the engine folder:  
 
