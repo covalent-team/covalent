@@ -45,6 +45,9 @@ There are currently 8 classes containing within this file, within the engine fol
     ├── searchbar.js                     # this is the searchbar to create a node, connector, socket...etc. 
     └── socket.js                        # this is the socket 
     
+   
+  1. **Node-object**: the most basic object of Covalent is a node, which can be interpreted as a function f(x). The node will contain arguments and returns (args can be intepreted as parameters of a function, returns are return of an argument). LeftExec and RightExec allow a node to keep track of the order of the Node Stack (e.g f(A) -> f(B)) so when a program execute, it knows to go from f(A) -> f(B). 
+  
 
 ## To Use
 ```bash
