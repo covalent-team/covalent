@@ -1,11 +1,31 @@
 var exports = module.exports = {}; 
+const path = require('path'); 
+const node = require(path.join(__dirname, '/node-object.js')); 
+const board = require(path.join(__dirname, '/board.js'));  
+
+
+var o1 = {
+	x: 1,
+	y: 1,
+	width: 60,
+	height: 60,
+	args: 2,
+	returns: 2,
+	leftExecs: 2,
+	rightExecs: 2,
+	isPure: false
+};
+
+
 
 class SearchBar{
 
 	// Constructor for the search bar menu 
-
 	constructor(){
-		// -------- Rendered menu variables --------- 
+
+		//this.board = board.create(); 
+
+		// Rendered menu variables 
 		this.canvasMenuClass = document.getElementsByClassName('canvasMenu');  
 		this.canvasMenuSearchResultClass = document.getElementsByClassName('canvasMenuSearchResults'); 
 		this.menudiv = document.createElement("div");   
@@ -14,12 +34,37 @@ class SearchBar{
 
 		// Filter array when user search for term, so the search results will change and not all menu components will be rendered 
 		this.filterArray = new Set(); 
+		this.isCreated = false;
 
 		// Position x and y where the menu will be rendered 
 		this.currentMenuPositionX = 0; 
 		this.currentMenuPositionY = 0; 
+
+		// The white box to contain the search bar and results. 
+		this.menudiv.className = "canvasMenu";
+		this.menudiv.style.position = "absolute"; 
+		
+
+		// Build the searchbar inside the menu. 
+		this.searchbar.className = "canvasMenuSearchBar"; 
+		this.searchbar.placeholder = "Search"; 
+		
+
+		// Build the search bar results beneath the search bar. 
+		this.searchResultsDiv = document.createElement("div");
+		this.searchResultsDiv.className = "canvasMenuSearchResults"; 
+		this.searchResultsDiv.id = 'searchResultsDivID'; 
+
+
+		// Bind the event listener to 'this' so that all SearchBar properties will be accessible inside that function 
+		this.clickedResult = this.clickedResult.bind(this); 
+
+
 }
 
+setBoardInstance(board){
+	this.board = board;
+}
 
 	// Set the location of the menu when user clicked on the screen 
 	setLocationMenu(currentMenuPositionX,currentMenuPositionY ){
@@ -27,86 +72,78 @@ class SearchBar{
 		this.currentMenuPositionY = currentMenuPositionY; 
 	}
 
-	// Draw menu at x and y position where user click on screen  
-	// State denotes if menu is already open or currently being search 
-	// 1. Initial: user first create a menu 
-	// 2. Searching: user already create menu, but currently searching so we don't need to clear the menu 
-	renderMenu(state){
+	// Function to render menu every time user click right click, this will be called 
+	renderMenu(){
 
-			// If user first create the menu by right click mouse. 
-			if (state == 'initial'){
-					this.clearMenu();  
+		// Draw menu at x and y position where user click on screen   
+		this.menudiv.style.top = this.currentMenuPositionY + "px"; 
+		this.menudiv.style.left = this.currentMenuPositionX + "px"; 
 
-					// The white box to contain the search bar and results. 
-					this.menudiv.className = "canvasMenu";
-					this.menudiv.style.position = "absolute"; 
-					this.menudiv.style.top = this.currentMenuPositionY + "px"; 
-					this.menudiv.style.left = this.currentMenuPositionX + "px"; 
-					document.body.appendChild(this.menudiv); 
-
-					// Build the searchbar inside the menu. 
-					this.searchbar.className = "canvasMenuSearchBar"; 
-					this.searchbar.placeholder = "Search"; 
-					this.menudiv.appendChild(this.searchbar);
-
-					// Build the search bar results beneath the search bar. 
-					var searchResultsDiv = document.createElement("div");
-					searchResultsDiv.className = "canvasMenuSearchResults"; 
-					searchResultsDiv.id = 'searchResultsDivID'; 
-					this.renderSearchComponents(searchResultsDiv, this.menuComponents); 
-					this.menudiv.appendChild(searchResultsDiv);  
+			// If array hasn't been created, then create a new menu bar, search bar and result div 
+			if(!this.isCreated){
+				document.body.appendChild(this.menudiv); 
+				this.menudiv.appendChild(this.searchbar);
+				this.filterArray = this.menuComponents;
+				this.searchResultsDiv = this.renderSearchComponents();
+				this.menudiv.appendChild(this.searchResultsDiv); 
+				this.isCreated = true;
 			}
 
-
-			// If user is currently searching, re-rendering the menu 
+			// If array has been created, just re-render the search component 
 			else{
-					document.getElementById("searchResultsDivID").outerHTML = ""; 
-					var searchResultsDiv = document.createElement("div");
-					searchResultsDiv.className = "canvasMenuSearchResults"; 
-					searchResultsDiv.id = 'searchResultsDivID';  
-					this.renderSearchComponents(searchResultsDiv, Array.from(this.filterArray)); 
-					this.menudiv.appendChild(searchResultsDiv);  
+				var newSearchResultsDiv = this.renderSearchComponents();
+				this.menudiv.replaceChild(newSearchResultsDiv, this.searchResultsDiv);
+				this.searchResultsDiv = newSearchResultsDiv; 
 			}
-
 	}
 
-	// Return array of p tags which are the result 
-	// searchresults (type: div): the div which contains the search results components
-	// componentArr (type: arr): the list of search terms that will be displayed on the search results 
-	renderSearchComponents(searchResultsDiv, componentArr){
-			console.log("Backspace should also call this!!!!"); 
+
+	// Return array of p tags which are the result  
+	renderSearchComponents(){
+
+		// Create a new research result div 
+		var newSearchResultsDiv = document.createElement("div");
+		newSearchResultsDiv.className = "canvasMenuSearchResults"; 
+		newSearchResultsDiv.id = 'searchResultsDivID'; 
+
+		// The components of P tags are taken from the filter array 
+		var componentArr = Array.from(this.filterArray);
 			if (componentArr.length == 0)
-					componentArr = this.menuComponents; 
+					componentArr = this.menuComponents;
+
+			// For ecah component in filter array, create a <p></p> tag 
 			for (var i in componentArr){
 					var componentStr = document.createTextNode(componentArr[i]);  
 					var componentP = document.createElement("p"); 
 					componentP.appendChild(componentStr); 
-					searchResultsDiv.appendChild(componentP); 
+					componentP.value = componentArr[i]; 
+					componentP.addEventListener('click',this.clickedResult,false); 
+					newSearchResultsDiv.appendChild(componentP); 
 			}
-			console.log("Search results div", searchResultsDiv); 
+			return newSearchResultsDiv;
 	}
-
-
 
 	/* ---------- ALL CLEARING RENDERING FUNCTION WILL GOES DOWN HERE ----------- */ 
 	// Erase all previously built menu. 
 	clearMenu(){
-			console.log("Clear menu is called!!!!"); 
-			try {
-					while (this.canvasMenuClass.length > 0) 
-							this.canvasMenuClass[0].remove(); 
-			} catch(err){
-					console.error("Error", err); 
+			try{
+				this.searchbar.parentNode.removeChild(this.searchbar);  
+				this.searchResultsDiv.parentNode.removeChild(this.searchResultsDiv);  
+				this.menudiv.parentNode.removeChild(this.menudiv); 
+				this.isCreated = false; 
+				this.clickedResultVal = '';  
+			}
+			catch (err){
+				console.log(err); 
 			}
 	}
 
 
-
 	// This filter the word user is currently searching. 
-	// var search = /fun/g
 	filterSearch(){
+
+		// Get the current word input from the search bar, and filter with only the word 
 			var word = this.searchbar.value; 
-			console.log("Word", word); 
 			this.filterArray = new Set();  
 			if (word){
 					for (var i in this.menuComponents){
@@ -119,11 +156,21 @@ class SearchBar{
 			} else{
 					this.filterArray = new Set(); 
 			}
-			this.renderMenu('searching'); 
+			this.renderMenu(); 
+	}
+
+	// This function will be called when the p tag is being clicked on 
+	clickedResult(evt){
+
+		// If it's a function, then create a box on the screen 
+		if (evt.target.value == 'function'){
+			var obj1 = node.create(o1); 
+			this.board.addToStack(obj1); 
+		}
 	}
 }
 
-
+// Exports the function 
 exports.create = function(){
 	return new SearchBar();
 }

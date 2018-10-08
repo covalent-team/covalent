@@ -1,18 +1,20 @@
-//Node object
+// Node object
+// x: 1,
+// 	y: 1,
+// 	width: 40,
+// 	height: 40,
+// 	args: 2,
+// 	returns: 2,
+// 	leftExecs: 2,
+// 	rightExecs: 2
+
+
 const path = require('path');
 const socket = require(path.join(__dirname, '/socket.js'));
 
 var exports = module.exports = {};
-class Object{
+class NodeObject{
 	constructor(nodeObject){
-		// x: 1,
-		// 	y: 1,
-		// 	width: 40,
-		// 	height: 40,
-		// 	args: 2,
-		// 	returns: 2,
-		// 	leftExecs: 2,
-		// 	rightExecs: 2
 		this.x = nodeObject.x;
 		this.y = nodeObject.y;
 		this.height = nodeObject.height;
@@ -41,19 +43,15 @@ class Object{
 			for(var j = 0; j < socketNums[i]; j++){
 				switch(i){
 					case 0:
-						console.log("leftExecs");
 						this.leftExecs.push(socket.create(makeSocketObj(this.leftExecs,"leftExec")));
 						break;
 					case 1:
-						console.log("rightExecs");
 						this.rightExecs.push(socket.create(makeSocketObj(this.rightExecs,"rightExec")));
 						break;
 					case 2:
-						console.log("args");
 						this.args.push(socket.create(makeSocketObj(this.args,"args")));
 						break;
 					case 3:
-						console.log("returns");
 						this.returns.push(socket.create(makeSocketObj(this.returns,"returns")));
 						break;
 				}
@@ -122,5 +120,5 @@ class Object{
 }
 
 exports.create = function(nodeObject){
-	return new Object(nodeObject);
+	return new NodeObject(nodeObject);
 }

@@ -1,12 +1,10 @@
 //engine core
 const path = require('path');
 const nodebuilder = require(path.join(__dirname, '/node-builder.js'));
-const node = require(path.join(__dirname, '/object.js'));
+const node = require(path.join(__dirname, '/node-object.js'));
 const connectorbuilder = require(path.join(__dirname, '/connector-builder.js'));
 const connector = require(path.join(__dirname, '/connector.js'));
 const fraction = require('fractional').Fraction;
-const searchbar = require(path.join(__dirname, '/searchbar.js'));
-
 var exports = module.exports = {};
 
 // This function create the board to draw the reactangles on 
@@ -19,8 +17,6 @@ class Board{
 		this.context = this.canvas.getContext('2d');
 
 		// -------- Mouse components ----------  
-		this.mouseX = 1;
-		this.mouseY = 1;
 		this.nodeStack = [];
 		this.connectorStack = [];
 
@@ -41,52 +37,29 @@ class Board{
 			bool: false,
 		};
 
-		this.generateExample();
 
-
+		// Node builder, connector builder, and search bar 
 		this.nodeBuilder = nodebuilder.create(this.context);
 		this.connectorBuilder = connectorbuilder.create(this.context);
-		this.searchBar = searchbar.create();
-
 	
 		// Set canvas width and height. 
 		this.canvas.width  = document.body.clientWidth;
   		this.canvas.height = document.documentElement.scrollHeight; 
-  		this.initEventListeners();
-  		this.tick();
+		this.tick();
+
 	}
 
-	generateExample(){
-		var o1 = {
-			x: 1,
-			y: 1,
-			width: 60,
-			height: 60,
-			args: 2,
-			returns: 2,
-			leftExecs: 2,
-			rightExecs: 2,
-			isPure: false
-		};
-
-		var obj1 = node.create(o1);
-		this.addToStack(obj1);
-
-		o1.x = 100;
-		o1.y = 100;
-
-		var obj2 = node.create(o1);
-		this.addToStack(obj2);
-	}
-
+	
 	getContext(){
 		return this.context;
 	}
 
-	addToStack(item){
+	// This method add a node item to stack 
+	addToStack(node){
 		var index = this.nodeStack.length;
-		item.setNodeIndex(index);
-		this.nodeStack.push(item);
+		node.setNodeIndex(index);
+		this.nodeStack.push(node);
+		this.tick(); 
 	}
 
 	tick(){
@@ -102,6 +75,12 @@ class Board{
 		};
 	}
 
+	setMouse(x,y, diffMouse){
+		this.mouseX = x;
+		this.mouseY = y;
+		this.diffMouse = diffMouse;
+	}
+
 	update() {
 	}
 
@@ -113,7 +92,6 @@ class Board{
 
 	globalOrNodeDrag(){
 		for(var i in this.nodeStack){
-			//var loc = this.nodeStack[i].getJSON();
 			var loc = this.nodeBuilder.getHitZones(this.nodeStack[i].getJSON());
 			console.log("loc",loc);
 
@@ -162,7 +140,6 @@ class Board{
 			for(j in loc.leftExec){
 				if(this.mouseX >= loc.leftExec[j].x && this.mouseX <= loc.leftExec[j].x + loc.leftExec[j].width){
 					if(this.mouseY >= loc.leftExec[j].y && this.mouseY <= loc.leftExec[j].y + loc.leftExec[j].height){
-						console.log("inside leftExec");
 						this.dragState.nodeIndex = i;
 						this.dragState.socketType = 'leftExec';
 						this.dragState.global = false;
@@ -182,7 +159,6 @@ class Board{
 			for(j in loc.rightExec){
 				if(this.mouseX >= loc.rightExec[j].x && this.mouseX <= loc.rightExec[j].x + loc.rightExec[j].width){
 					if(this.mouseY >= loc.rightExec[j].y && this.mouseY <= loc.rightExec[j].y + loc.rightExec[j].height){
-						console.log("inside rightExec");
 						this.dragState.nodeIndex = i;
 						this.dragState.socketType = 'rightExec';
 						this.dragState.global = false;
@@ -213,6 +189,7 @@ class Board{
 	}
 
 	render() {
+
 		//if dragged body of node (not sockets), then drag the node around
 		if(this.dragState.clicked && !this.dragState.global && !this.dragState.isSocket){
 			this.moveNode(this.dragState.node);
@@ -233,12 +210,9 @@ class Board{
 		//if button released on a socket, and connector was started, then attach it
 		else if(!this.dragState.clicked && !this.dragState.global && this.dragState.isSocket){
 			if(this.connectionStarted.bool == true){
-				console.log("connected!!", this.connectionStarted);
 				var startSoc = this.connectionStarted.info;
 
 				//start and end needs to have {node, socket, }
-				
-
 				var start = {
 					nodeIndex: startSoc.nodeIndex, 
 					socketIndex: startSoc.socketIndex, 
@@ -271,13 +245,6 @@ class Board{
 					console.log("returns must only connect to args");
 				}
 
-				// //validate args only has one connector going to it
-				// else if(start.socketType == 'args' && this.nodeStack[start.nodeIndex].checkArgsConnector(start.socketIndex)){
-				// 	console.log("already a connector attached to it");
-				// }
-				// else if(end.socketType == 'args' && this.nodeStack[end.nodeIndex].checkArgsConnector(end.socketIndex)){
-				// 	console.log("already a connector attached to it");
-				// }
 
 				//if validated, connect!
 				else{
@@ -297,7 +264,8 @@ class Board{
 			var first = this.nodeBuilder.getHitZones(this.nodeStack[obj.start.nodeIndex].getJSON());
 			var second = this.nodeBuilder.getHitZones(this.nodeStack[obj.end.nodeIndex].getJSON());
 
-
+			
+		
 			//args or returns
 			if(obj.start.socketType == 'args'){
 				var start = {x: first.args[obj.start.socketIndex].x, y: first.args[obj.start.socketIndex].y};
@@ -332,9 +300,8 @@ class Board{
 		}
 		
 
+		// ------ THIS WILL DRAW THE NODE STACK -------  
 		for(var i in this.nodeStack){
-			
-
 			var obj = this.nodeStack[i].getJSON();
 
 			//if clicked on global stuff
@@ -346,6 +313,9 @@ class Board{
 			
 		}
 	}
+
+
+
 
 	clear() {
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -383,75 +353,8 @@ class Board{
 			isSocket: false,
 			node: null
 		};
-		
-	}
-
-
-	
-
-	// Event listeners
-	initEventListeners() {
-		this.canvas.addEventListener('mousemove', e => {
-			this.mouseX = e.layerX;  //numbers are static based on side UI
-			this.mouseY = e.layerY;
-			this.diffMouse = {x: e.movementX, y: e.movementY};
-			this.tick();
-			//this.globalOrNodeDrag();
-		});
-
-
-		// When user release the mouse 
-		this.canvas.addEventListener('mouseup', e => {
-			this.resetDragState();
-			this.globalOrNodeDrag();
-
-		});
-
-
-		// When user press down the mouse 
-		this.canvas.addEventListener('mousedown', e => {
-			this.globalOrNodeDrag();
-
-			// If user left click, erase menu else create menu 
-			if (e.button === 0){
-				this.clearMenu(); 
-			}
-			if (e.button === 2 && this.dragState.global == true){
-
-			
-
-				this.searchBar.setLocationMenu(e.clientX, e.clientY); 
-				this.searchBar.renderMenu('initial'); 
-			
-				this.resetDragState(); 
-				return; 
-			}
-			this.dragState.clicked = true;
-		});
-
-		this.canvas.addEventListener('wheel', e => {
-			//console.log("wheel",e); //foward = -deltaY, backward = +deltaY
-			this.mouseWheelZoom(e);
-			this.tick();
-		});
-
-
-		// When user removes their hand from the keyboard 
-		document.addEventListener('keyup', e => {
-			this.searchBar.filterSearch();   
-		});
-
-		document.addEventListener('keydown', e => {
-
-		});
-
-		this.canvas.addEventListener('click', e => {
-
-		});
 	}
 }
-
-
 
 exports.create = function(){
 	return new Board();
