@@ -2,7 +2,6 @@
 
 'use strict'; 
 const {app, BrowserWindow, Menu} = require('electron')
-const core = require( __dirname + '/engine/core.js');
 
 // Add in client for Gulp 
 var client = require('electron-connect').client;

@@ -1,4 +1,6 @@
 var exports = module.exports = {}; 
+
+// Path and all the necessary modules 
 const path = require('path'); 
 const node = require(path.join(__dirname, '/node-object.js')); 
 const board = require(path.join(__dirname, '/board.js'));  
@@ -9,21 +11,18 @@ var o1 = {
 	y: 1,
 	width: 60,
 	height: 60,
-	args: 2,
-	returns: 2,
-	leftExecs: 2,
+	args: 1,
+	returns: 0,
+	leftExecs: 1,
 	rightExecs: 2,
 	isPure: false
 };
 
-
-
+// This is the search bar class 
 class SearchBar{
 
 	// Constructor for the search bar menu 
 	constructor(){
-
-		//this.board = board.create(); 
 
 		// Rendered menu variables 
 		this.canvasMenuClass = document.getElementsByClassName('canvasMenu');  
@@ -57,14 +56,13 @@ class SearchBar{
 
 
 		// Bind the event listener to 'this' so that all SearchBar properties will be accessible inside that function 
-		this.clickedResult = this.clickedResult.bind(this); 
-
-
+		this.buildObjectOnBoard = this.buildObjectOnBoard.bind(this); 
 }
 
-setBoardInstance(board){
-	this.board = board;
-}
+	// Obtains the current board instance from Listener 
+	setBoardInstance(board){
+		this.board = board;
+	}
 
 	// Set the location of the menu when user clicked on the screen 
 	setLocationMenu(currentMenuPositionX,currentMenuPositionY ){
@@ -117,7 +115,7 @@ setBoardInstance(board){
 					var componentP = document.createElement("p"); 
 					componentP.appendChild(componentStr); 
 					componentP.value = componentArr[i]; 
-					componentP.addEventListener('click',this.clickedResult,false); 
+					componentP.addEventListener('click',this.buildObjectOnBoard,false); 
 					newSearchResultsDiv.appendChild(componentP); 
 			}
 			return newSearchResultsDiv;
@@ -130,10 +128,8 @@ setBoardInstance(board){
 				this.searchbar.parentNode.removeChild(this.searchbar);  
 				this.searchResultsDiv.parentNode.removeChild(this.searchResultsDiv);  
 				this.menudiv.parentNode.removeChild(this.menudiv); 
-				this.isCreated = false; 
-				this.clickedResultVal = '';  
-			}
-			catch (err){
+				this.isCreated = false;  
+			} catch (err){
 				console.log(err); 
 			}
 	}
@@ -146,23 +142,23 @@ setBoardInstance(board){
 			var word = this.searchbar.value; 
 			this.filterArray = new Set();  
 			if (word){
-					for (var i in this.menuComponents){
-							var component = this.menuComponents[i]; 
-							var inComponent = component.includes(word); 
-							if (inComponent == true){
-									this.filterArray.add(component); 
-							}	
-					}
+				for (var i in this.menuComponents){
+						var component = this.menuComponents[i]; 
+						var inComponent = component.includes(word); 
+						if (inComponent == true){
+								this.filterArray.add(component); 
+						}	
+				}
 			} else{
-					this.filterArray = new Set(); 
+				this.filterArray = new Set(); 
 			}
 			this.renderMenu(); 
 	}
 
 	// This function will be called when the p tag is being clicked on 
-	clickedResult(evt){
+	buildObjectOnBoard(evt){
 
-		// If it's a function, then create a box on the screen 
+		// If it's a function, then create a node object on the screen 
 		if (evt.target.value == 'function'){
 			var obj1 = node.create(o1); 
 			this.board.addToStack(obj1); 

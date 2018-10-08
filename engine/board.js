@@ -11,16 +11,16 @@ var exports = module.exports = {};
 class Board{
 	constructor(){
 	
-		// -------- Canvas components --------  
+		// Canvas components 
 		this.canvas = document.createElement('canvas');
 		document.body.appendChild(this.canvas);
 		this.context = this.canvas.getContext('2d');
 
-		// -------- Mouse components ----------  
+		// Stack componnets 
 		this.nodeStack = [];
 		this.connectorStack = [];
 
-		// -------- Zoom and drag state components --------  
+		//  Zoom and drag state components  
 		this.zoom = 1;
 		this.inverseZoom = 1;
 		this.dragState = {
@@ -31,25 +31,27 @@ class Board{
 		};
 
 
-		// -------- Node and connectors variables --------  
-
+		//  Node and connectors variables  
 		this.connectionStarted = {
 			bool: false,
 		};
 
-
 		// Node builder, connector builder, and search bar 
 		this.nodeBuilder = nodebuilder.create(this.context);
 		this.connectorBuilder = connectorbuilder.create(this.context);
-	
+		
 		// Set canvas width and height. 
 		this.canvas.width  = document.body.clientWidth;
-  		this.canvas.height = document.documentElement.scrollHeight; 
-		this.tick();
+		this.canvas.height = document.documentElement.scrollHeight; 
+		  
+		// Set instances to child class 
+		this.connectorBuilder.setConnectorBuilderInstance(this.nodeBuilder, this.nodeStack);  
 
+		// Refresh the board 
+		this.tick();
 	}
 
-	
+	// Return the context of the canvas 
 	getContext(){
 		return this.context;
 	}
@@ -62,12 +64,14 @@ class Board{
 		this.tick(); 
 	}
 
+	// Refresh the board everytime user moves the mouse 
 	tick(){
 		this.clear();
 		this.update();
 		this.render();
 	}
 
+	// Return the x and y coordinate of the mouse on the screen 
 	getMouse(){
 		return {
 			x: this.mouseX,
@@ -75,6 +79,7 @@ class Board{
 		};
 	}
 
+	// Set the position x and y coordinate of the mouse on the screen 
 	setMouse(x,y, diffMouse){
 		this.mouseX = x;
 		this.mouseY = y;
@@ -84,6 +89,7 @@ class Board{
 	update() {
 	}
 
+	// Get the inverse of a decimal 
 	getInverse(decimal){
 		var f = new fraction(decimal);
 		return f.denominator/f.numerator;
@@ -189,13 +195,13 @@ class Board{
 	}
 
 	render() {
-
-		//if dragged body of node (not sockets), then drag the node around
+		
+		// If dragged body of node (not sockets), then drag the node around
 		if(this.dragState.clicked && !this.dragState.global && !this.dragState.isSocket){
 			this.moveNode(this.dragState.node);
 		}
 
-		//if a socket is dragged, spawn connector
+		// If a socket is dragged, spawn connector
 		else if(this.dragState.clicked && !this.dragState.global && this.dragState.isSocket){
 			this.context.beginPath();
 			var socketLoc = this.dragState.socketLocation;
@@ -207,12 +213,12 @@ class Board{
 			this.context.stroke();
 		}
 
-		//if button released on a socket, and connector was started, then attach it
+		// If button released on a socket, and connector was started, then attach it
 		else if(!this.dragState.clicked && !this.dragState.global && this.dragState.isSocket){
 			if(this.connectionStarted.bool == true){
 				var startSoc = this.connectionStarted.info;
 
-				//start and end needs to have {node, socket, }
+				// Start and end needs to have {node, socket, }
 				var start = {
 					nodeIndex: startSoc.nodeIndex, 
 					socketIndex: startSoc.socketIndex, 
@@ -259,45 +265,8 @@ class Board{
 			}
 		}
 
-		for(var i in this.connectorStack){
-			var obj = this.connectorStack[i].getJSON();
-			var first = this.nodeBuilder.getHitZones(this.nodeStack[obj.start.nodeIndex].getJSON());
-			var second = this.nodeBuilder.getHitZones(this.nodeStack[obj.end.nodeIndex].getJSON());
-
-			
-		
-			//args or returns
-			if(obj.start.socketType == 'args'){
-				var start = {x: first.args[obj.start.socketIndex].x, y: first.args[obj.start.socketIndex].y};
-			}
-			else if(obj.start.socketType == 'returns'){
-				var start = {x: first.returns[obj.start.socketIndex].x, y: first.returns[obj.start.socketIndex].y};
-			}
-			if(obj.end.socketType == 'args'){
-				var end = {x: second.args[obj.end.socketIndex].x, y: second.args[obj.end.socketIndex].y};
-			}
-			else if(obj.end.socketType == 'returns'){
-				var end = {x: second.returns[obj.end.socketIndex].x, y: second.returns[obj.end.socketIndex].y};
-			}
-
-			//left and right exec
-			if(obj.start.socketType == 'leftExec'){
-				var start = {x: first.leftExec[obj.start.socketIndex].x + (first.leftExec[obj.start.socketIndex].width/2), y: first.leftExec[obj.start.socketIndex].y + (first.leftExec[obj.start.socketIndex].height/2)};
-			}
-			else if(obj.start.socketType == 'rightExec'){
-				var start = {x: first.rightExec[obj.start.socketIndex].x + (first.rightExec[obj.start.socketIndex].width/2), y: first.rightExec[obj.start.socketIndex].y + (first.rightExec[obj.start.socketIndex].height/2)};
-			}
-			if(obj.end.socketType == 'leftExec'){
-				var end = {x: second.leftExec[obj.end.socketIndex].x + (second.leftExec[obj.end.socketIndex].width/2), y: second.leftExec[obj.end.socketIndex].y + (second.leftExec[obj.end.socketIndex].height/2)};
-			}
-			else if(obj.end.socketType == 'rightExec'){
-				var end = {x: second.rightExec[obj.end.socketIndex].x + (second.rightExec[obj.end.socketIndex].width/2), y: second.rightExec[obj.end.socketIndex].y + (second.rightExec[obj.end.socketIndex].height/2)};
-			}
-
-			this.context.beginPath();
-			this.connectorBuilder.makeConnector(start, end, obj.isReversed);
-			this.context.stroke();
-		}
+		// Draw the connector onto the screen 
+		this.connectorBuilder.buildConnectorOnScreen(this.connectorStack); 
 		
 
 		// ------ THIS WILL DRAW THE NODE STACK -------  
@@ -313,9 +282,6 @@ class Board{
 			
 		}
 	}
-
-
-
 
 	clear() {
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
