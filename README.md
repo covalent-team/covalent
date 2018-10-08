@@ -13,8 +13,6 @@ Join our Discord! - https://discord.gg/VVBMWGG
 
 ## Architecture of the Class 
 There are currently 8 classes containing within this file, within the engine folder:  
-
-## Architecture   
     engine/
     ├── board.js                         # the board that contains all the node object, connectors and sockets 
     ├── connector-builder.js             # this build the connector between the two node 
@@ -24,6 +22,7 @@ There are currently 8 classes containing within this file, within the engine fol
     ├── node-object.js                   # this is the class to create a node object itself 
     ├── searchbar.js                     # this is the searchbar to create a node, connector, socket...etc. 
     └── socket.js                        # this is the socket 
+    
 
 ## To Use
 ```bash
