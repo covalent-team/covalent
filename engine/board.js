@@ -197,79 +197,91 @@ class Board{
 	render() {
 		
 		// If dragged body of node (not sockets), then drag the node around
-		if(this.dragState.clicked && !this.dragState.global && !this.dragState.isSocket){
+		if (this.dragState.clicked && !this.dragState.global && !this.dragState.isSocket){
 			this.moveNode(this.dragState.node);
 		}
 
 		// If a socket is dragged, spawn connector
-		else if(this.dragState.clicked && !this.dragState.global && this.dragState.isSocket){
-			this.context.beginPath();
-			var socketLoc = this.dragState.socketLocation;
-			this.connectionStarted.bool = true;
-			this.connectionStarted.info = this.dragState;
-			var start = {x: socketLoc.x, y: socketLoc.y};
-			var end = {x: this.mouseX, y: this.mouseY};
-			this.connectorBuilder.makeConnector(start, end, socketLoc.isReversed);
-			this.context.stroke();
+		else if (this.dragState.clicked && !this.dragState.global && this.dragState.isSocket){
+			this.spawnConnector(); 
 		}
 
 		// If button released on a socket, and connector was started, then attach it
 		else if(!this.dragState.clicked && !this.dragState.global && this.dragState.isSocket){
-			if(this.connectionStarted.bool == true){
-				var startSoc = this.connectionStarted.info;
-
-				// Start and end needs to have {node, socket, }
-				var start = {
-					nodeIndex: startSoc.nodeIndex, 
-					socketIndex: startSoc.socketIndex, 
-					socketType: startSoc.socketType
-				};
-
-				var end = {
-					nodeIndex: this.dragState.nodeIndex, 
-					socketIndex: this.dragState.socketIndex, 
-					socketType: this.dragState.socketType
-				};
-
-				//validate if can connect to this socket
-				if(start.nodeIndex == end.nodeIndex && start.socketIndex == end.socketIndex){
-					console.log("same place, dont");
-				}
-				else if(start.socketType == end.socketType){
-					console.log("both sockets are the same type");
-				}
-				else if(start.socketType == 'leftExec' && end.socketType != 'rightExec'){
-					console.log("execs must be connected to eachother");
-				}
-				else if(start.socketType == 'rightExec' && end.socketType != 'leftExec'){
-					console.log("execs must be connected to eachother");
-				}
-				else if(start.socketType == 'returns' && end.socketType != 'args'){
-					console.log("returns must only connect to args");
-				}
-				else if(start.socketType == 'args' && end.socketType != 'returns'){
-					console.log("returns must only connect to args");
-				}
-
-
-				//if validated, connect!
-				else{
-					this.nodeStack[start.nodeIndex].addConnector(start.socketType, start.socketIndex);
-					this.nodeStack[end.nodeIndex].addConnector(end.socketType, end.socketIndex);
-					var newConnector = connector.create(start, end, startSoc.socketLocation.isReversed);
-					this.connectorStack.push(newConnector);
-					console.log("connectorStack", this.connectorStack);
-				}
-				this.connectionStarted.bool = false;
-				this.resetDragState();
-			}
+			this.attachConnector(); 
 		}
 
-		// Draw the connector onto the screen 
+		// Draw the connector onto the screen and nod stack 
 		this.connectorBuilder.buildConnectorOnScreen(this.connectorStack); 
-		
+		this.drawNodeStack(); 
+	}
 
-		// ------ THIS WILL DRAW THE NODE STACK -------  
+
+
+	spawnConnector(){
+		this.context.beginPath();
+		var socketLoc = this.dragState.socketLocation;
+		this.connectionStarted.bool = true;
+		this.connectionStarted.info = this.dragState;
+		var start = {x: socketLoc.x, y: socketLoc.y};
+		var end = {x: this.mouseX, y: this.mouseY};
+		this.connectorBuilder.makeConnector(start, end, socketLoc.isReversed);
+		this.context.stroke();
+	}
+
+
+	attachConnector(){
+		if(this.connectionStarted.bool == true){
+			var startSoc = this.connectionStarted.info;
+
+			// Start and end needs to have {node, socket, }
+			var start = {
+				nodeIndex: startSoc.nodeIndex, 
+				socketIndex: startSoc.socketIndex, 
+				socketType: startSoc.socketType
+			};
+
+			var end = {
+				nodeIndex: this.dragState.nodeIndex, 
+				socketIndex: this.dragState.socketIndex, 
+				socketType: this.dragState.socketType
+			};
+
+			//validate if can connect to this socket
+			if(start.nodeIndex == end.nodeIndex && start.socketIndex == end.socketIndex){
+				console.log("same place, dont");
+			}
+			else if(start.socketType == end.socketType){
+				console.log("both sockets are the same type");
+			}
+			else if(start.socketType == 'leftExec' && end.socketType != 'rightExec'){
+				console.log("execs must be connected to eachother");
+			}
+			else if(start.socketType == 'rightExec' && end.socketType != 'leftExec'){
+				console.log("execs must be connected to eachother");
+			}
+			else if(start.socketType == 'returns' && end.socketType != 'args'){
+				console.log("returns must only connect to args");
+			}
+			else if(start.socketType == 'args' && end.socketType != 'returns'){
+				console.log("returns must only connect to args");
+			}
+
+
+			//if validated, connect!
+			else{
+				this.nodeStack[start.nodeIndex].addConnector(start.socketType, start.socketIndex);
+				this.nodeStack[end.nodeIndex].addConnector(end.socketType, end.socketIndex);
+				var newConnector = connector.create(start, end, startSoc.socketLocation.isReversed);
+				this.connectorStack.push(newConnector);
+				console.log("connectorStack", this.connectorStack);
+			}
+			this.connectionStarted.bool = false;
+			this.resetDragState();
+		}
+	}
+
+	drawNodeStack(){
 		for(var i in this.nodeStack){
 			var obj = this.nodeStack[i].getJSON();
 
@@ -279,9 +291,12 @@ class Board{
 			}
 			this.nodeBuilder.addZoom(this.zoom);
 			this.nodeBuilder.parseJSON(obj);
-			
 		}
 	}
+
+
+
+
 
 	clear() {
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
