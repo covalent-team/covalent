@@ -26,8 +26,6 @@ class Listeners{
 		// These are all event listeners that will happen when user press mouse or keyboard 
     initEventListeners() {
 
-			//this.searchBar.clickedResult(); 
-			console.log("this.searchbar", this.searchBar); 
 				
 			// When user moves the mouse, get X and Y coordinate 
 			this.canvas.addEventListener('mousemove', e => {

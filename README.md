@@ -11,8 +11,19 @@ This is a brand new open source project, and there is still a long way to go, bu
 
 Join our Discord! - https://discord.gg/VVBMWGG
 
-## To Use
+## Architecture of the Class 
+There are currently 8 classes containing within this file, within the engine folder: 
+engine/
+    ├── board.js                         # the board that contains all the node object, connectors and sockets 
+    ├── connector-builder.js             # this build the connector between the two node 
+    ├── connector.js                     # this is the class to create a connector 
+    ├── listeners.js                     # this handle all event listeners (mousedown, mouseup..etc.) and is the root class 
+    ├── node-builder.js                  # this build the node itself             
+    ├── node-object.js                   # this is the class to create a node object itself 
+    ├── searchbar.js                     # this is the searchbar to create a node, connector, socket...etc. 
+    └── socket.js                        # this is the socket 
 
+## To Use
 ```bash
 # Clone this repository
 git clone https://github.com/covalent-team/covalent.git 

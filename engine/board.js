@@ -140,7 +140,6 @@ class Board{
 			for(j in loc.leftExec){
 				if(this.mouseX >= loc.leftExec[j].x && this.mouseX <= loc.leftExec[j].x + loc.leftExec[j].width){
 					if(this.mouseY >= loc.leftExec[j].y && this.mouseY <= loc.leftExec[j].y + loc.leftExec[j].height){
-						console.log("inside leftExec");
 						this.dragState.nodeIndex = i;
 						this.dragState.socketType = 'leftExec';
 						this.dragState.global = false;
@@ -160,7 +159,6 @@ class Board{
 			for(j in loc.rightExec){
 				if(this.mouseX >= loc.rightExec[j].x && this.mouseX <= loc.rightExec[j].x + loc.rightExec[j].width){
 					if(this.mouseY >= loc.rightExec[j].y && this.mouseY <= loc.rightExec[j].y + loc.rightExec[j].height){
-						console.log("inside rightExec");
 						this.dragState.nodeIndex = i;
 						this.dragState.socketType = 'rightExec';
 						this.dragState.global = false;
@@ -212,7 +210,6 @@ class Board{
 		//if button released on a socket, and connector was started, then attach it
 		else if(!this.dragState.clicked && !this.dragState.global && this.dragState.isSocket){
 			if(this.connectionStarted.bool == true){
-				console.log("connected!!", this.connectionStarted);
 				var startSoc = this.connectionStarted.info;
 
 				//start and end needs to have {node, socket, }
@@ -306,7 +303,6 @@ class Board{
 		// ------ THIS WILL DRAW THE NODE STACK -------  
 		for(var i in this.nodeStack){
 			var obj = this.nodeStack[i].getJSON();
-			//console.log("Object!!!!!!!!", obj); 
 
 			//if clicked on global stuff
 			if(this.dragState.clicked && this.dragState.global && !this.dragState.isSocket){
