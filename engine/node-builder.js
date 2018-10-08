@@ -69,8 +69,6 @@ class nodeBuilder{
 			returns.push(objreturns);
 		}
 
-
-
 		return {
 			x: json.x,
 			y: json.y,

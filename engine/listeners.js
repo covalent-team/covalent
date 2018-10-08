@@ -1,7 +1,7 @@
 const path = require('path'); 
 const boardModule = require(path.join(__dirname, '/board.js')); 
 const searchbar = require(path.join(__dirname, '/searchbar.js')); 
-
+const Mousetrap = require('mousetrap'); 
 
 class Listeners{
     constructor(){
@@ -26,6 +26,13 @@ class Listeners{
 		// These are all event listeners that will happen when user press mouse or keyboard 
     initEventListeners() {
 
+			Mousetrap.bind(['command+k', 'ctrl+k'], function(e) {
+        console.log('command k or control k', e);
+
+       
+			}); 
+			
+		
 				
 			// When user moves the mouse, get X and Y coordinate 
 			this.canvas.addEventListener('mousemove', e => {
@@ -47,6 +54,7 @@ class Listeners{
     
 			// When user press down the mouse 
 			this.canvas.addEventListener('mousedown', e => {
+				//this.mouseClick = e.button; 
 				this.board.globalOrNodeDrag();
 
 				// If user left click, erase menu else create menu 
@@ -74,11 +82,20 @@ class Listeners{
     
 			// When user removes their hand from the keyboard 
 			document.addEventListener('keyup', e => {
-					this.searchBar.filterSearch();   
+				  if (this.searchBar.isCreaated){
+						this.searchBar.filterSearch();   
+					}
+				
 			});
 	
 			// When user removes their hand down on the keyboard  
 			document.addEventListener('keydown', e => {
+				// if (e.ctrlKey){
+				// 	console.log("E button", e.button); 
+				// 	console.log("User is pressing down control key!!!!"); 
+				// 	console.log("mouse click", this.mouseClick); 
+					
+				// }
 	
 			});
 	
@@ -86,6 +103,9 @@ class Listeners{
 			this.canvas.addEventListener('click', e => {
 	
 			});
+
+
+			// 
   }
 }
 
