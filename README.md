@@ -13,6 +13,7 @@ Join our Discord! - https://discord.gg/VVBMWGG
 
 ## Architecture of the Class 
 There are currently 8 classes containing within this file, within the engine folder:  
+
     engine/
     ├── board.js                         # the board that contains all the node object, connectors and sockets 
     ├── connector-builder.js             # this build the connector between the two node 
