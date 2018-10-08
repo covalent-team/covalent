@@ -8,7 +8,8 @@ class Listeners{
 				
 			// Create all modules here 
 			this.board = boardModule.create(); 
-			this.searchBar = searchbar.create();  
+			this.searchBar = searchbar.create(); 
+			this.searchBar.setBoardInstance(this.board); 
 
 
 			// Get objects from the modules 
@@ -21,15 +22,7 @@ class Listeners{
 			this.mouseY = 1; 
 		
 		}
-		
-
-
-		parentMethod(){
-			console.log("Fuck yeahhhhhhh!"); 
-		}
-
-
-
+	
 		// These are all event listeners that will happen when user press mouse or keyboard 
     initEventListeners() {
 
@@ -41,6 +34,7 @@ class Listeners{
 				this.mouseX = e.layerX;   
 				this.mouseY = e.layerY;
 				this.diffMouse = {x: e.movementX, y: e.movementY};
+				this.board.setMouse(this.mouseX, this.mouseY, this.diffMouse);
 				this.board.tick();
 			});
     

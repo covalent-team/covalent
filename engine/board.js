@@ -59,7 +59,7 @@ class Board{
 		var index = this.nodeStack.length;
 		node.setNodeIndex(index);
 		this.nodeStack.push(node);
-		// this.tick(); 
+		this.tick(); 
 	}
 
 	tick(){
@@ -75,6 +75,12 @@ class Board{
 		};
 	}
 
+	setMouse(x,y, diffMouse){
+		this.mouseX = x;
+		this.mouseY = y;
+		this.diffMouse = diffMouse;
+	}
+
 	update() {
 	}
 
@@ -85,7 +91,6 @@ class Board{
 
 
 	globalOrNodeDrag(){
-		console.log("Node stack", this.nodeStack); 
 		for(var i in this.nodeStack){
 			var loc = this.nodeBuilder.getHitZones(this.nodeStack[i].getJSON());
 			console.log("loc",loc);
@@ -187,7 +192,6 @@ class Board{
 
 	render() {
 
-		console.log("Rendering function is callled!!!!"); 
 		//if dragged body of node (not sockets), then drag the node around
 		if(this.dragState.clicked && !this.dragState.global && !this.dragState.isSocket){
 			this.moveNode(this.dragState.node);
@@ -302,7 +306,7 @@ class Board{
 		// ------ THIS WILL DRAW THE NODE STACK -------  
 		for(var i in this.nodeStack){
 			var obj = this.nodeStack[i].getJSON();
-			console.log("Object", obj); 
+			//console.log("Object!!!!!!!!", obj); 
 
 			//if clicked on global stuff
 			if(this.dragState.clicked && this.dragState.global && !this.dragState.isSocket){

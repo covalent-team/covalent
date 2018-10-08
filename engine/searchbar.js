@@ -23,7 +23,7 @@ class SearchBar{
 	// Constructor for the search bar menu 
 	constructor(){
 
-		this.board = board.create(); 
+		//this.board = board.create(); 
 
 		// Rendered menu variables 
 		this.canvasMenuClass = document.getElementsByClassName('canvasMenu');  
@@ -60,6 +60,10 @@ class SearchBar{
 		this.clickedResult = this.clickedResult.bind(this); 
 
 
+}
+
+setBoardInstance(board){
+	this.board = board;
 }
 
 	// Set the location of the menu when user clicked on the screen 
@@ -130,7 +134,7 @@ class SearchBar{
 				this.clickedResultVal = '';  
 			}
 			catch (err){
-				console.error("Error", err); 
+				console.log(err); 
 			}
 	}
 
