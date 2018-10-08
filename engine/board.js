@@ -5,7 +5,7 @@ const node = require(path.join(__dirname, '/node-object.js'));
 const connectorbuilder = require(path.join(__dirname, '/connector-builder.js'));
 const connector = require(path.join(__dirname, '/connector.js'));
 const fraction = require('fractional').Fraction;
-const searchbar = require(path.join(__dirname, '/searchbar.js'));
+// const searchbar = require(path.join(__dirname, '/searchbar.js'));
 
 var exports = module.exports = {};
 
@@ -19,8 +19,6 @@ class Board{
 		this.context = this.canvas.getContext('2d');
 
 		// -------- Mouse components ----------  
-		this.mouseX = 1;
-		this.mouseY = 1;
 		this.nodeStack = [];
 		this.connectorStack = [];
 
@@ -41,49 +39,25 @@ class Board{
 			bool: false,
 		};
 
-		this.generateExample();
 
-
+		// Node builder, connector builder, and search bar 
 		this.nodeBuilder = nodebuilder.create(this.context);
 		this.connectorBuilder = connectorbuilder.create(this.context);
-		this.searchBar = searchbar.create();
-
 	
 		// Set canvas width and height. 
 		this.canvas.width  = document.body.clientWidth;
-  		this.canvas.height = document.documentElement.scrollHeight; 
-  		this.initEventListeners();
-  		this.tick();
+  	this.canvas.height = document.documentElement.scrollHeight; 
+		this.tick();
+
 	}
 
-	generateExample(){
-		var o1 = {
-			x: 1,
-			y: 1,
-			width: 60,
-			height: 60,
-			args: 2,
-			returns: 2,
-			leftExecs: 2,
-			rightExecs: 2,
-			isPure: false
-		};
-
-		var obj1 = node.create(o1);
-		this.addToStack(obj1);
-
-		o1.x = 100;
-		o1.y = 100;
-
-		var obj2 = node.create(o1);
-		this.addToStack(obj2);
-	}
 
 	getContext(){
 		return this.context;
 	}
 
 	addToStack(item){
+		console.log("Add to stack is being callled!!!!!", item); 
 		var index = this.nodeStack.length;
 		item.setNodeIndex(index);
 		this.nodeStack.push(item);
@@ -112,8 +86,8 @@ class Board{
 
 
 	globalOrNodeDrag(){
+		console.log("Node stack", this.nodeStack); 
 		for(var i in this.nodeStack){
-			//var loc = this.nodeStack[i].getJSON();
 			var loc = this.nodeBuilder.getHitZones(this.nodeStack[i].getJSON());
 			console.log("loc",loc);
 
@@ -372,75 +346,8 @@ class Board{
 			isSocket: false,
 			node: null
 		};
-		
-	}
-
-
-	
-
-	// Event listeners
-	initEventListeners() {
-		this.canvas.addEventListener('mousemove', e => {
-			this.mouseX = e.layerX;  //numbers are static based on side UI
-			this.mouseY = e.layerY;
-			this.diffMouse = {x: e.movementX, y: e.movementY};
-			this.tick();
-			//this.globalOrNodeDrag();
-		});
-
-
-		// When user release the mouse 
-		this.canvas.addEventListener('mouseup', e => {
-			this.resetDragState();
-			this.globalOrNodeDrag();
-
-		});
-
-
-		// When user press down the mouse 
-		this.canvas.addEventListener('mousedown', e => {
-			this.globalOrNodeDrag();
-
-			// If user left click, erase menu else create menu 
-			if (e.button === 0){
-				this.searchBar.clearMenu(); 
-			}
-			if (e.button === 2 && this.dragState.global == true){
-
-			
-
-				this.searchBar.setLocationMenu(e.clientX, e.clientY); 
-				this.searchBar.renderMenu();//'initial'); 
-			
-				this.resetDragState(); 
-				return; 
-			}
-			this.dragState.clicked = true;
-		});
-
-		this.canvas.addEventListener('wheel', e => {
-			//console.log("wheel",e); //foward = -deltaY, backward = +deltaY
-			this.mouseWheelZoom(e);
-			this.tick();
-		});
-
-
-		// When user removes their hand from the keyboard 
-		document.addEventListener('keyup', e => {
-			this.searchBar.filterSearch();   
-		});
-
-		document.addEventListener('keydown', e => {
-
-		});
-
-		this.canvas.addEventListener('click', e => {
-
-		});
 	}
 }
-
-
 
 exports.create = function(){
 	return new Board();

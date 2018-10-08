@@ -1,11 +1,27 @@
 var exports = module.exports = {}; 
+const path = require('path'); 
+const node = require(path.join(__dirname, '/node-object.js')); 
+const board = require(path.join(__dirname, '/board.js'));  
+
+var o1 = {
+	x: 1,
+	y: 1,
+	width: 60,
+	height: 60,
+	args: 2,
+	returns: 2,
+	leftExecs: 2,
+	rightExecs: 2,
+	isPure: false
+};
+
 
 class SearchBar{
 
 	// Constructor for the search bar menu 
-
 	constructor(){
-		// -------- Rendered menu variables --------- 
+
+		// Rendered menu variables 
 		this.canvasMenuClass = document.getElementsByClassName('canvasMenu');  
 		this.canvasMenuSearchResultClass = document.getElementsByClassName('canvasMenuSearchResults'); 
 		this.menudiv = document.createElement("div");   
@@ -34,11 +50,13 @@ class SearchBar{
 		this.searchResultsDiv = document.createElement("div");
 		this.searchResultsDiv.className = "canvasMenuSearchResults"; 
 		this.searchResultsDiv.id = 'searchResultsDivID'; 
-		// this.renderSearchComponents(this.searchResultsDiv, this.menuComponents); 
 
+
+		// Importing from other classes
+		this.newStuff = ''; 
+		
 
 }
-
 
 	// Set the location of the menu when user clicked on the screen 
 	setLocationMenu(currentMenuPositionX,currentMenuPositionY ){
@@ -46,15 +64,14 @@ class SearchBar{
 		this.currentMenuPositionY = currentMenuPositionY; 
 	}
 
-	// Draw menu at x and y position where user click on screen  
-	// State denotes if menu is already open or currently being search 
-	// 1. Initial: user first create a menu 
-	// 2. Searching: user already create menu, but currently searching so we don't need to clear the menu 
+	// Function to render menu every time user click right click, this will be called 
 	renderMenu(){
+
+		// Draw menu at x and y position where user click on screen   
 		this.menudiv.style.top = this.currentMenuPositionY + "px"; 
 		this.menudiv.style.left = this.currentMenuPositionX + "px"; 
 
-			// If array hasn't been created 
+			// If array hasn't been created, then create a new menu bar, search bar and result div 
 			if(!this.isCreated){
 				document.body.appendChild(this.menudiv); 
 				this.menudiv.appendChild(this.searchbar);
@@ -63,64 +80,61 @@ class SearchBar{
 				this.menudiv.appendChild(this.searchResultsDiv); 
 				this.isCreated = true;
 			}
+
+			// If array has been created, just re-render the search component 
 			else{
-				//document.body.replaceChild(this.menudiv, this.menudiv); 
-				//this.menudiv.replaceChild(this.searchbar, this.searchbar);
-				var newfuckingthing = this.renderSearchComponents();
-				console.log("new fucking thing!!!", newfuckingthing); 
-				this.menudiv.replaceChild(newfuckingthing, this.searchResultsDiv);
-				this.searchResultsDiv = newfuckingthing; 
+				var newSearchResultsDiv = this.renderSearchComponents();
+				this.menudiv.replaceChild(newSearchResultsDiv, this.searchResultsDiv);
+				this.searchResultsDiv = newSearchResultsDiv; 
 			}
 	}
 
 
-	// Return array of p tags which are the result 
-	// searchresults (type: div): the div which contains the search results components
-	// componentArr (type: arr): the list of search terms that will be displayed on the search results 
+	// Return array of p tags which are the result  
 	renderSearchComponents(){
+
+		// Create a new research result div 
 		var newSearchResultsDiv = document.createElement("div");
 		newSearchResultsDiv.className = "canvasMenuSearchResults"; 
 		newSearchResultsDiv.id = 'searchResultsDivID'; 
 
+		// The components of P tags are taken from the filter array 
 		var componentArr = Array.from(this.filterArray);
 			if (componentArr.length == 0)
 					componentArr = this.menuComponents;
-			console.log("Component arr", componentArr); 
+
+			// For ecah component in filter array, create a <p></p> tag 
 			for (var i in componentArr){
 					var componentStr = document.createTextNode(componentArr[i]);  
 					var componentP = document.createElement("p"); 
 					componentP.appendChild(componentStr); 
-					componentP.onclick = function(){ this.clickedResultFunc(componentStr); };
+					componentP.value = componentArr[i]; 
+					componentP.addEventListener('click',this.clickedResult,false); 
 					newSearchResultsDiv.appendChild(componentP); 
 			}
-			//this.searchResultsDiv = newSearchResultsDiv;
-			console.log("Search results div", newSearchResultsDiv); 
 			return newSearchResultsDiv;
 	}
-
-
 
 	/* ---------- ALL CLEARING RENDERING FUNCTION WILL GOES DOWN HERE ----------- */ 
 	// Erase all previously built menu. 
 	clearMenu(){
-			// try {
-			// 	while (this.canvasMenuClass.length > 0) 
-			// 			this.canvasMenuClass[0].remove(); 
-			// } catch(err){
-			// 		console.error("Error", err); 
-			// }
-			this.searchbar.parentNode.removeChild(this.searchbar);  
-			this.searchResultsDiv.parentNode.removeChild(this.searchResultsDiv);  
-			this.menudiv.parentNode.removeChild(this.menudiv); 
-			
-			this.isCreated = false; 
+			try{
+				this.searchbar.parentNode.removeChild(this.searchbar);  
+				this.searchResultsDiv.parentNode.removeChild(this.searchResultsDiv);  
+				this.menudiv.parentNode.removeChild(this.menudiv); 
+				this.isCreated = false; 
+				this.clickedResultVal = '';  
+			}
+			catch (err){
+				console.error("Error", err); 
+			}
 	}
 
 
-
 	// This filter the word user is currently searching. 
-	// var search = /fun/g
 	filterSearch(){
+
+		// Get the current word input from the search bar, and filter with only the word 
 			var word = this.searchbar.value; 
 			this.filterArray = new Set();  
 			if (word){
@@ -134,19 +148,28 @@ class SearchBar{
 			} else{
 					this.filterArray = new Set(); 
 			}
-			//edit the list
 			this.renderMenu(); 
 	}
 
-
-
 	// This function will be called when the p tag is being clicked on 
-	clickedResultFunc(word){
-		console.log("Word", word); 
+	clickedResult(evt){
+
+		// If it's a function, then create a box on the screen 
+		if (evt.target.value == 'function'){
+			console.log("creating function here"); 
+			var obj1 = node.create(o1); 
+			this.newStuff = obj1; 
+		}
 	}
+
+	getNewStuff(){
+		console.log("Newly rendered object", this.newStuff); 
+		return this.newStuff; 
+	}
+	
 }
 
-
+// Exports the function 
 exports.create = function(){
 	return new SearchBar();
 }

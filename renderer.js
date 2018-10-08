@@ -3,6 +3,9 @@
 
 const fs = require('fs'); 
 // ------- RENDERING THE BOARD AND ALLDE THE NODE ENGINES -------- 
-const board = require(__dirname + "/engine/board.js");
-const table = board.create();
+const boardModule = require(__dirname + "/engine/board.js");
+const listenerModule = require(__dirname +"/engine/listeners.js"); 
+// const board = boardModule.create();
+const listener = listenerModule.create();
+console.log("listener!!!!!", listener);  
 
