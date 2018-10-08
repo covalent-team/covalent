@@ -194,6 +194,8 @@ class Board{
 		node.addRelativeXY(this.diffMouse.x * this.inverseZoom, this.diffMouse.y * this.inverseZoom);
 	}
 
+
+	// This function render things on the screen 
 	render() {
 		
 		// If dragged body of node (not sockets), then drag the node around
@@ -215,7 +217,6 @@ class Board{
 		this.connectorBuilder.buildConnectorOnScreen(this.connectorStack); 
 		this.drawNodeStack(); 
 	}
-
 
 
 	spawnConnector(){
@@ -293,9 +294,6 @@ class Board{
 			this.nodeBuilder.parseJSON(obj);
 		}
 	}
-
-
-
 
 
 	clear() {

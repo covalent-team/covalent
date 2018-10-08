@@ -22,6 +22,7 @@
     "gulp": "^4.0.0"
   },
   "dependencies": {
-    "fractional": "^1.0.0"
+    "fractional": "^1.0.0",
+    "mousetrap": "^1.6.2"
   }
 }
