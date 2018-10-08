@@ -6,29 +6,39 @@ const searchbar = require(path.join(__dirname, '/searchbar.js'));
 class Listeners{
     constructor(){
 				
-				// Create a board module here 
-        this.board = boardModule.create(); 
-        this.canvas = this.board.canvas; 
-				this.initEventListeners(); 
+			// Create all modules here 
+			this.board = boardModule.create(); 
+			this.searchBar = searchbar.create();  
 
 
-				// Create the search bar module 
-				this.searchBar = searchbar.create(); 
-				
-				// Get X and Y coordinate 
-				this.mouseX = 1;
-				this.mouseY = 1; 
+			// Get objects from the modules 
+			this.canvas = this.board.canvas; 
+			this.initEventListeners(); 
+		
+			
+			// Get X and Y coordinate 
+			this.mouseX = 1;
+			this.mouseY = 1; 
+		
+		}
+		
+
+
+		parentMethod(){
+			console.log("Fuck yeahhhhhhh!"); 
+		}
 
 
 
-    }
-
-
+		// These are all event listeners that will happen when user press mouse or keyboard 
     initEventListeners() {
+
+			//this.searchBar.clickedResult(); 
+			console.log("this.searchbar", this.searchBar); 
 				
-			// When user moves the mouse 
+			// When user moves the mouse, get X and Y coordinate 
 			this.canvas.addEventListener('mousemove', e => {
-				this.mouseX = e.layerX;  //numbers are static based on side UI
+				this.mouseX = e.layerX;   
 				this.mouseY = e.layerY;
 				this.diffMouse = {x: e.movementX, y: e.movementY};
 				this.board.tick();
@@ -51,10 +61,11 @@ class Listeners{
 				if (e.button === 0){
 						this.searchBar.clearMenu(); 
 				}
+
+				// If user right click,  then create a menu search 
 				if (e.button === 2 && this.board.dragState.global == true){
 						this.searchBar.setLocationMenu(e.clientX, e.clientY); 
-						this.searchBar.renderMenu();//'initial'); 
-				
+						this.searchBar.renderMenu(); 
 						this.board.resetDragState(); 
 						return; 
 				}
@@ -74,10 +85,12 @@ class Listeners{
 					this.searchBar.filterSearch();   
 			});
 	
+			// When user removes their hand down on the keyboard  
 			document.addEventListener('keydown', e => {
 	
 			});
 	
+			// When user click on the canvas 
 			this.canvas.addEventListener('click', e => {
 	
 			});

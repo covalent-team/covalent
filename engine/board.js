@@ -5,8 +5,6 @@ const node = require(path.join(__dirname, '/node-object.js'));
 const connectorbuilder = require(path.join(__dirname, '/connector-builder.js'));
 const connector = require(path.join(__dirname, '/connector.js'));
 const fraction = require('fractional').Fraction;
-// const searchbar = require(path.join(__dirname, '/searchbar.js'));
-
 var exports = module.exports = {};
 
 // This function create the board to draw the reactangles on 
@@ -46,21 +44,22 @@ class Board{
 	
 		// Set canvas width and height. 
 		this.canvas.width  = document.body.clientWidth;
-  	this.canvas.height = document.documentElement.scrollHeight; 
+  		this.canvas.height = document.documentElement.scrollHeight; 
 		this.tick();
 
 	}
 
-
+	
 	getContext(){
 		return this.context;
 	}
 
-	addToStack(item){
-		console.log("Add to stack is being callled!!!!!", item); 
+	// This method add a node item to stack 
+	addToStack(node){
 		var index = this.nodeStack.length;
-		item.setNodeIndex(index);
-		this.nodeStack.push(item);
+		node.setNodeIndex(index);
+		this.nodeStack.push(node);
+		// this.tick(); 
 	}
 
 	tick(){
@@ -187,6 +186,8 @@ class Board{
 	}
 
 	render() {
+
+		console.log("Rendering function is callled!!!!"); 
 		//if dragged body of node (not sockets), then drag the node around
 		if(this.dragState.clicked && !this.dragState.global && !this.dragState.isSocket){
 			this.moveNode(this.dragState.node);
@@ -262,7 +263,8 @@ class Board{
 			var first = this.nodeBuilder.getHitZones(this.nodeStack[obj.start.nodeIndex].getJSON());
 			var second = this.nodeBuilder.getHitZones(this.nodeStack[obj.end.nodeIndex].getJSON());
 
-
+			
+		
 			//args or returns
 			if(obj.start.socketType == 'args'){
 				var start = {x: first.args[obj.start.socketIndex].x, y: first.args[obj.start.socketIndex].y};
@@ -297,8 +299,10 @@ class Board{
 		}
 		
 
+		// ------ THIS WILL DRAW THE NODE STACK -------  
 		for(var i in this.nodeStack){
 			var obj = this.nodeStack[i].getJSON();
+			console.log("Object", obj); 
 
 			//if clicked on global stuff
 			if(this.dragState.clicked && this.dragState.global && !this.dragState.isSocket){
@@ -309,6 +313,9 @@ class Board{
 			
 		}
 	}
+
+
+
 
 	clear() {
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);

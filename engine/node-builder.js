@@ -6,7 +6,6 @@ class nodeBuilder{
 		this.zoom = 1;
 	}
 
-
 	getHitZones(json){
 		var i;
 		
@@ -100,6 +99,8 @@ class nodeBuilder{
 	}
 
 	parseJSON(json){
+
+	
 		var i;
 		//main node body
 		json.x = json.x * this.zoom;

@@ -3,6 +3,7 @@ const path = require('path');
 const node = require(path.join(__dirname, '/node-object.js')); 
 const board = require(path.join(__dirname, '/board.js'));  
 
+
 var o1 = {
 	x: 1,
 	y: 1,
@@ -16,10 +17,13 @@ var o1 = {
 };
 
 
+
 class SearchBar{
 
 	// Constructor for the search bar menu 
 	constructor(){
+
+		this.board = board.create(); 
 
 		// Rendered menu variables 
 		this.canvasMenuClass = document.getElementsByClassName('canvasMenu');  
@@ -52,9 +56,9 @@ class SearchBar{
 		this.searchResultsDiv.id = 'searchResultsDivID'; 
 
 
-		// Importing from other classes
-		this.newStuff = ''; 
-		
+		// Bind the event listener to 'this' so that all SearchBar properties will be accessible inside that function 
+		this.clickedResult = this.clickedResult.bind(this); 
+
 
 }
 
@@ -156,17 +160,10 @@ class SearchBar{
 
 		// If it's a function, then create a box on the screen 
 		if (evt.target.value == 'function'){
-			console.log("creating function here"); 
 			var obj1 = node.create(o1); 
-			this.newStuff = obj1; 
+			this.board.addToStack(obj1); 
 		}
 	}
-
-	getNewStuff(){
-		console.log("Newly rendered object", this.newStuff); 
-		return this.newStuff; 
-	}
-	
 }
 
 // Exports the function 
