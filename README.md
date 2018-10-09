@@ -47,7 +47,11 @@ There are currently 8 classes containing within this file, within the engine fol
     
    
   1. **Node-object**: the most basic object of Covalent is a node, which can be interpreted as a function f(x). The node will contain arguments and returns (args can be intepreted as parameters of a function, returns are return of an argument). LeftExec and RightExec allow a node to keep track of the order of the Node Stack (e.g f(A) -> f(B)) so when a program execute, it knows to go from f(A) -> f(B). 
-  
+  2. **Node builder**: a node builder builds a node. It has a parseJSON method to parse the attributes of a node, and then draw the node onto the screen. 
+  3. **Connector**: a connector links two node objects together. A connector contains a start point and an endpoint. 
+  4. **Connector Builder**: a connector builder contains method to build a connector. It calculates the Belzier Curve in bezierCurveCalc(), and handle the logic to make sure that while a return can be map to multiple parameter, each parameter can only be map to one returns. 
+  5. **Searchbar**: a searchbar contains the method to render a search bar every time user right click on the canvas, and it allows user to create node, connector onto the screen by choosing for menu attributes from the searchbar.
+  6. **Listeners**: this is the master method that will get called when the Browser Window first open. The listener will render a board, then automatically call the method initEventListeners(), which listen for when user press on key or mouse. 
 
 ## To Use
 ```bash
