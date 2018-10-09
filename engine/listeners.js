@@ -26,9 +26,8 @@ class Listeners{
 		// These are all event listeners that will happen when user press mouse or keyboard 
     initEventListeners() {
 
-			Mousetrap.bind(['command+k', 'ctrl+k'], function(e) {
-        console.log('command k or control k', e);
-
+			Mousetrap.bind(['command', 'ctrl'], e =>  {
+				console.log("this mouse click", this.mouseClick); 
        
 			}); 
 			
@@ -54,8 +53,10 @@ class Listeners{
     
 			// When user press down the mouse 
 			this.canvas.addEventListener('mousedown', e => {
-				//this.mouseClick = e.button; 
+				this.mouseClick = e.button; 
 				this.board.globalOrNodeDrag();
+				console.log("this mouse click", this.mouseClick); 
+				console.log("event", e); 
 
 				// If user left click, erase menu else create menu 
 				if (e.button === 0){
@@ -82,7 +83,7 @@ class Listeners{
     
 			// When user removes their hand from the keyboard 
 			document.addEventListener('keyup', e => {
-				  if (this.searchBar.isCreaated){
+				  if (this.searchBar.isCreated){
 						this.searchBar.filterSearch();   
 					}
 				

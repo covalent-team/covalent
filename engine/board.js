@@ -95,90 +95,69 @@ class Board{
 		return f.denominator/f.numerator;
 	}
 
+	
+	// Collision Handling Function 
+  collisonHandling(loc, type, i){
 
+		// Loc Type Dictionary 
+		var locTypeDict = {
+			'args': [loc.args, true],
+			'returns': [loc.returns, false], 
+			'leftExec': [loc.leftExec, true], 
+			'rightExec': [loc.rightExec, false]
+		}
+		var locType = locTypeDict[type][0]; 
+		var isReversedVal = locTypeDict[type][1];
+		var j;  
+
+		for (j in locType){
+
+				// Set drag state location 
+				if (type == 'args' || type == 'returns'){
+					var xVal = locType[j].x; 
+					var yVal = locType[j].y; 
+					var xBound = locType[j].radius; 
+					var yBound = locType[j].radius; 
+				} else if (type == 'leftExec' || type == 'rightExec') {
+					var xVal = locType[j].x + (locType[j].width/2); 
+					var yVal = locType[j].y + (locType[j].height/2); 
+					var xBound = locType[j].width; 
+					var yBound = locType[j].height; 
+				}
+
+
+			if(this.mouseX >= locType[j].x - xBound && this.mouseX <= locType[j].x + xBound){
+				if(this.mouseY >= locType[j].y - yBound && this.mouseY <= locType[j].y + yBound ){
+
+					// Set drag state 
+					this.dragState.nodeIndex = i;
+					this.dragState.socketType = type;
+					this.dragState.global = false;
+					this.dragState.isSocket = true;
+					this.dragState.socketIndex = j;
+
+					// Set socket location; 
+					this.dragState.socketLocation = {
+						x: xVal, y: yVal,
+						isReversed: isReversedVal
+					};
+					return;
+				}
+			}
+		}
+
+	}	
+
+	// Global node or drag function 
 	globalOrNodeDrag(){
 		for(var i in this.nodeStack){
 			var loc = this.nodeBuilder.getHitZones(this.nodeStack[i].getJSON());
 			console.log("loc",loc);
 
-			//if argument sockets collision is true
-			var j;
-			for(j in loc.args){
-				if(this.mouseX >= loc.args[j].x-loc.args[j].radius && this.mouseX <= loc.args[j].x+loc.args[j].radius){
-					if(this.mouseY >= loc.args[j].y-loc.args[j].radius && this.mouseY <= loc.args[j].y+loc.args[j].radius){
-						console.log("inside args");
-						this.dragState.nodeIndex = i;
-						this.dragState.socketType = 'args';
-						this.dragState.global = false;
-						this.dragState.isSocket = true;
-						this.dragState.socketIndex = j;
-						this.dragState.socketLocation = {
-							x: loc.args[j].x,
-							y: loc.args[j].y,
-							isReversed: true
-						};
-						return;
-					}
-				}
-			}
-
-			//if return sockets collision is true
-			for(j in loc.returns){
-				if(this.mouseX >= loc.returns[j].x-loc.returns[j].radius && this.mouseX <= loc.returns[j].x+loc.returns[j].radius){
-					if(this.mouseY >= loc.returns[j].y-loc.returns[j].radius && this.mouseY <= loc.returns[j].y+loc.returns[j].radius){
-						console.log("inside returns");
-						this.dragState.nodeIndex = i;
-						this.dragState.socketType = 'returns';
-						this.dragState.global = false;
-						this.dragState.isSocket = true;
-						this.dragState.socketIndex = j;
-						this.dragState.socketLocation = {
-							x: loc.returns[j].x,
-							y: loc.returns[j].y,
-							isReversed: false
-						};
-						return;
-					}
-				}
-			}
-
-			//if leftExec socket collision is true
-			for(j in loc.leftExec){
-				if(this.mouseX >= loc.leftExec[j].x && this.mouseX <= loc.leftExec[j].x + loc.leftExec[j].width){
-					if(this.mouseY >= loc.leftExec[j].y && this.mouseY <= loc.leftExec[j].y + loc.leftExec[j].height){
-						this.dragState.nodeIndex = i;
-						this.dragState.socketType = 'leftExec';
-						this.dragState.global = false;
-						this.dragState.isSocket = true;
-						this.dragState.socketIndex = j;
-						this.dragState.socketLocation = {
-								x: loc.leftExec[j].x + (loc.leftExec[j].width/2),
-								y: loc.leftExec[j].y + (loc.leftExec[j].height/2),
-								isReversed: true
-							};
-						return;
-					}
-				}
-			}
-
-			//if rightExec socket collision is true
-			for(j in loc.rightExec){
-				if(this.mouseX >= loc.rightExec[j].x && this.mouseX <= loc.rightExec[j].x + loc.rightExec[j].width){
-					if(this.mouseY >= loc.rightExec[j].y && this.mouseY <= loc.rightExec[j].y + loc.rightExec[j].height){
-						this.dragState.nodeIndex = i;
-						this.dragState.socketType = 'rightExec';
-						this.dragState.global = false;
-						this.dragState.isSocket = true;
-						this.dragState.socketIndex = j;
-						this.dragState.socketLocation = {
-								x: loc.rightExec[j].x + (loc.rightExec[j].width/2),
-								y: loc.rightExec[j].y + (loc.rightExec[j].height/2),
-								isReversed: false
-							};
-						return;
-					}
-				}
-			}
+			this.collisonHandling(loc, 'args', i); 
+			this.collisonHandling(loc, 'returns', i); 
+			this.collisonHandling(loc, 'leftExec', i); 
+			this.collisonHandling(loc, 'rightExec', i); 
 
 			if(this.mouseX >= loc.x && this.mouseX <= loc.x + loc.width){
 				if(this.mouseY >= loc.y && this.mouseY <= loc.y + loc.height){
@@ -197,20 +176,13 @@ class Board{
 
 	// This function render things on the screen 
 	render() {
-		
-		// If dragged body of node (not sockets), then drag the node around
+
 		if (this.dragState.clicked && !this.dragState.global && !this.dragState.isSocket){
-			this.moveNode(this.dragState.node);
-		}
-
-		// If a socket is dragged, spawn connector
-		else if (this.dragState.clicked && !this.dragState.global && this.dragState.isSocket){
-			this.spawnConnector(); 
-		}
-
-		// If button released on a socket, and connector was started, then attach it
-		else if(!this.dragState.clicked && !this.dragState.global && this.dragState.isSocket){
-			this.attachConnector(); 
+			this.moveNode(this.dragState.node);	 // If dragged body of node (not sockets), then drag the node around
+		} else if (this.dragState.clicked && !this.dragState.global && this.dragState.isSocket){
+			this.spawnConnector(); 	            // If a socket is dragged, spawn connector 
+		} else if(!this.dragState.clicked && !this.dragState.global && this.dragState.isSocket){
+			this.attachConnector(); 	          // If button released on a socket, and connector was started, then attach it
 		}
 
 		// Draw the connector onto the screen and nod stack 
@@ -295,6 +267,7 @@ class Board{
 		}
 	}
 
+	
 
 	clear() {
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
