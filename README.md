@@ -1,10 +1,9 @@
 # Covalent
 
-A drag-and-drop visual scripting language that will compile to JavaScript, built using Electron and ReactJS. 
-Modelled after Unreal Engine Blueprint. 
+A drag-and-drop visual scripting language that will compile to source code, built using Electron. 
+Inspiration for the project came from using the Blueprints system within Unreal Engine 4.
 
 ## Misson
-
 The misson of Covalent is to provide an easily extendable, node based editor which will allow novices and experts to quickly build Javascript code without actually writing a single line. This code can be used for frontend functionality, as well as backend node.js code. This could mean that a person could potentially build a full API using Nodejs using a Covalent, all drag-and-drop.
 
 This is a brand new open source project, and there is still a long way to go, but I hope that you will join us on this adventure.
