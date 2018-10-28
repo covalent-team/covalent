@@ -68,8 +68,3 @@ Make sure you have [Gulp](https://github.com/gulpjs/gulp/blob/v3.9.1/docs/gettin
 
 ## Resources 
 - Live Reload with Electron-Connect: https://github.com/Quramy/electron-connect  
-
-
-## License
-
-[CC0 1.0 (Public Domain)](LICENSE.md)
